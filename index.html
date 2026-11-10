@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>fiESTA · 21–22 noviembre</title>
+  <meta name="description" content="Toda la información de la fiesta: horarios, ubicación, agenda y tu reto personal.">
+  <meta name="theme-color" content="#0b1028">
+  <!-- Fiesta privada: pedimos a los buscadores que no la indexen -->
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Vista previa al compartir el enlace por WhatsApp -->
+  <meta property="og:title" content="fiESTA · 21–22 noviembre">
+  <meta property="og:description" content="Horarios, ubicación, agenda y tu reto personal.">
+  <meta property="og:type" content="website">
+
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Marca que JS está activo: el CSS solo oculta cosas para animarlas si esto existe -->
+  <script>document.documentElement.classList.add('js');</script>
+
+  <!-- defer: se descargan en paralelo y se ejecutan EN ORDEN cuando el HTML ya está listo -->
+  <script src="data.js" defer></script>
+  <script src="js/main.js" defer></script>
+</head>
+<body>
+
+<a class="saltar" href="#info">Saltar a la información</a>
+
+<main>
+
+  <!-- =================================================== PORTADA -->
+  <section id="inicio" class="portada" aria-labelledby="titulo">
+    <div class="cielo" aria-hidden="true">
+      <div class="estrellas" id="estrellas"></div>
+    </div>
+
+    <svg class="guirnalda-top" id="guirnaldaTop" viewBox="0 0 400 70" aria-hidden="true"></svg>
+
+    <div class="portada__texto">
+      <p class="portada__etiqueta" data-campo="etiqueta">Fiesta privada en casa rural</p>
+      <h1 class="portada__titulo" id="titulo" data-campo="nombre">fiESTA</h1>
+      <p class="portada__sub" data-campo="subtitulo">21–22 NOVIEMBRE</p>
+    </div>
+
+    <!-- Ilustración de la casa. Las clases (.muro, .ventana...) dan el color desde el CSS -->
+    <svg class="casa" viewBox="0 0 400 250" role="img" aria-label="Casa rural de noche con luces de fiesta">
+      <defs>
+        <radialGradient id="luzSuelo" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="#ffc65c" stop-opacity=".45"/>
+          <stop offset="1" stop-color="#ffc65c" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="degradadoSuelo" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#0a0e26"/>
+          <stop offset="1" stop-color="#0a0e26" stop-opacity="0"/>
+        </linearGradient>
+        <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+          <stop offset=".35" stop-color="#fff6d6" stop-opacity=".22"/>
+          <stop offset="1" stop-color="#fff6d6" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <!-- luna -->
+      <circle cx="338" cy="34" r="34" fill="url(#halo)"/>
+      <circle class="luna" cx="338" cy="34" r="15"/>
+
+      <!-- colinas -->
+      <path class="colina-lejos" d="M0 196 Q 90 160 190 186 T 400 172 V250 H0 Z"/>
+
+      <!-- árboles -->
+      <g class="arbol">
+        <rect x="46" y="186" width="8" height="40"/>
+        <polygon points="50,104 24,192 76,192"/>
+        <polygon points="50,86 30,146 70,146"/>
+      </g>
+      <g class="arbol arbol--lejos">
+        <rect x="16" y="196" width="6" height="30"/>
+        <polygon points="19,140 2,202 36,202"/>
+      </g>
+      <g class="arbol">
+        <rect x="374" y="182" width="8" height="44"/>
+        <polygon points="378,96 352,190 400,190"/>
+        <polygon points="378,78 358,140 398,140"/>
+      </g>
+
+      <!-- humo de la chimenea -->
+      <g class="humo">
+        <circle cx="241" cy="60" r="6"/>
+        <circle cx="241" cy="60" r="6"/>
+        <circle cx="241" cy="60" r="6"/>
+      </g>
+
+      <!-- anexo (cuadra/porche) -->
+      <rect class="muro muro--2" x="278" y="150" width="84" height="76"/>
+      <polygon class="tejado" points="272,156 280,134 362,144 368,158"/>
+      <rect class="ventana" x="304" y="172" width="32" height="22" rx="2"/>
+      <path class="marco" d="M320 172 V194 M304 183 H336"/>
+
+      <!-- chimenea -->
+      <rect class="muro muro--2" x="232" y="72" width="18" height="40"/>
+      <rect class="tejado" x="229" y="68" width="24" height="6"/>
+
+      <!-- casa principal -->
+      <rect class="muro" x="92" y="118" width="192" height="108"/>
+      <g class="piedras">
+        <rect x="98" y="210" width="14" height="7" rx="2"/>
+        <rect x="262" y="128" width="16" height="7" rx="2"/>
+        <rect x="150" y="128" width="12" height="6" rx="2"/>
+        <rect x="216" y="208" width="14" height="7" rx="2"/>
+        <rect x="152" y="196" width="10" height="6" rx="2"/>
+        <rect x="258" y="170" width="12" height="6" rx="2"/>
+      </g>
+      <polygon class="tejado" points="76,126 188,56 300,126"/>
+      <path class="tejado-borde" d="M76 126 L188 56 L300 126"/>
+
+      <!-- ventanas (brillan) -->
+      <circle class="ventana" cx="188" cy="98" r="9"/>
+      <path class="marco" d="M188 89 V107 M179 98 H197"/>
+
+      <rect class="contraventana" x="106" y="136" width="8" height="30"/>
+      <rect class="contraventana" x="146" y="136" width="8" height="30"/>
+      <rect class="ventana ventana--b" x="116" y="136" width="28" height="30" rx="2"/>
+      <path class="marco" d="M130 136 V166 M116 151 H144"/>
+
+      <rect class="contraventana" x="222" y="136" width="8" height="30"/>
+      <rect class="contraventana" x="262" y="136" width="8" height="30"/>
+      <rect class="ventana" x="232" y="136" width="28" height="30" rx="2"/>
+      <path class="marco" d="M246 136 V166 M232 151 H260"/>
+
+      <rect class="ventana ventana--c" x="116" y="182" width="28" height="26" rx="2"/>
+      <path class="marco" d="M130 182 V208 M116 195 H144"/>
+      <rect class="ventana ventana--b" x="232" y="182" width="28" height="26" rx="2"/>
+      <path class="marco" d="M246 182 V208 M232 195 H260"/>
+
+      <!-- puerta abierta con luz -->
+      <path class="puerta" d="M168 226 V186 A20 20 0 0 1 208 186 V226 Z"/>
+      <path class="puerta-hoja" d="M168 226 V186 A20 20 0 0 1 176 170 V226 Z"/>
+
+      <!-- suelo y luz que sale de la puerta -->
+      <path fill="url(#degradadoSuelo)" d="M0 224 Q 200 214 400 224 V250 H0 Z"/>
+      <ellipse cx="188" cy="230" rx="80" ry="12" fill="url(#luzSuelo)"/>
+
+      <!-- guirnaldas de la casa: las dibuja main.js -->
+      <g id="guirnaldaCasa"></g>
+    </svg>
+
+    <div class="cuenta" id="cuenta">
+      <p class="cuenta__titulo" id="cuentaTitulo">Empieza en</p>
+      <div class="cuenta__cajas" id="cuentaCajas">
+        <div class="caja"><span class="caja__num" data-u="d">--</span><span class="caja__lbl">días</span></div>
+        <div class="caja"><span class="caja__num" data-u="h">--</span><span class="caja__lbl">horas</span></div>
+        <div class="caja"><span class="caja__num" data-u="m">--</span><span class="caja__lbl">min</span></div>
+        <div class="caja"><span class="caja__num" data-u="s">--</span><span class="caja__lbl">seg</span></div>
+      </div>
+      <p class="cuenta__fecha" id="cuentaFecha"></p>
+    </div>
+
+    <a class="btn btn--luz portada__cta" href="#info">Ver la información</a>
+  </section>
+
+
+  <!-- =================================================== INFORMACIÓN -->
+  <section id="info" class="seccion" aria-labelledby="h-info">
+    <header class="seccion__cab revelar">
+      <p class="seccion__num">01</p>
+      <h2 id="h-info">Información</h2>
+    </header>
+
+    <div class="tarjetas">
+      <article class="tarjeta revelar">
+        <div class="tarjeta__icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        </div>
+        <h3>Cuándo</h3>
+        <p id="infoCuando"></p>
+      </article>
+
+      <article class="tarjeta revelar">
+        <div class="tarjeta__icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h8l4 4v14"/><path d="M2 21h20M14 12h.01"/></svg>
+        </div>
+        <h3>Horario de entrada</h3>
+        <p id="infoEntrada"></p>
+        <p class="tarjeta__nota" id="infoEntradaNota"></p>
+      </article>
+
+      <article class="tarjeta tarjeta--ancha revelar">
+        <div class="tarjeta__icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        </div>
+        <h3>Dónde</h3>
+        <p class="lugar__nombre" id="lugarNombre"></p>
+        <p id="lugarDireccion"></p>
+        <p class="tarjeta__nota" id="lugarIndicaciones"></p>
+        <a class="btn btn--luz" id="lugarMaps" href="#" target="_blank" rel="noopener">
+          Abrir en Google Maps
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+        </a>
+      </article>
+
+      <article class="tarjeta tarjeta--ancha revelar">
+        <div class="tarjeta__icono" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+        </div>
+        <h3>Qué llevar</h3>
+        <ul class="lista-llevar" id="listaLlevar"></ul>
+      </article>
+    </div>
+
+    <div class="agenda revelar">
+      <h3 class="agenda__titulo">Agenda</h3>
+      <div class="agenda__tabs" role="tablist" aria-label="Días" id="agendaTabs"></div>
+      <ol class="agenda__lista" id="agendaPanel" role="tabpanel"></ol>
+    </div>
+  </section>
+
+
+  <!-- =================================================== MI RETO (fase 2) -->
+  <section id="reto" class="seccion" aria-labelledby="h-reto">
+    <header class="seccion__cab revelar">
+      <p class="seccion__num">02</p>
+      <h2 id="h-reto">Mi reto</h2>
+    </header>
+    <div class="tarjeta tarjeta--pronto revelar">
+      <p>Tu reto personal aparecerá aquí muy pronto.</p>
+    </div>
+  </section>
+
+
+  <!-- =================================================== SUBIR PRUEBA (fase 3) -->
+  <section id="subir" class="seccion" aria-labelledby="h-subir">
+    <header class="seccion__cab revelar">
+      <p class="seccion__num">03</p>
+      <h2 id="h-subir">Subir prueba</h2>
+    </header>
+    <div class="tarjeta tarjeta--pronto revelar">
+      <p>Aquí podrás subir la foto o el vídeo de tu reto.</p>
+    </div>
+  </section>
+
+
+  <!-- =================================================== FAQ -->
+  <section id="faq" class="seccion" aria-labelledby="h-faq">
+    <header class="seccion__cab revelar">
+      <p class="seccion__num">04</p>
+      <h2 id="h-faq">Preguntas frecuentes</h2>
+    </header>
+    <!-- <details>/<summary>: acordeón nativo del navegador, accesible y sin JS -->
+    <div class="faq revelar" id="faqLista"></div>
+  </section>
+
+</main>
+
+<footer class="pie">
+  <p>Fiesta privada · No compartas este enlace fuera del grupo</p>
+</footer>
+
+
+<!-- =================================================== NAVEGACIÓN INFERIOR -->
+<nav class="nav" aria-label="Secciones">
+  <a class="nav__item" href="#inicio" data-seccion="inicio">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>
+    <span>Inicio</span>
+  </a>
+  <a class="nav__item" href="#info" data-seccion="info">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+    <span>Info</span>
+  </a>
+  <a class="nav__item" href="#reto" data-seccion="reto">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2"/><circle cx="15" cy="15" r="1.2"/><circle cx="15" cy="9" r="1.2"/><circle cx="9" cy="15" r="1.2"/></svg>
+    <span>Mi reto</span>
+  </a>
+  <a class="nav__item" href="#subir" data-seccion="subir">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13.5" r="3.5"/></svg>
+    <span>Subir</span>
+  </a>
+</nav>
+
+</body>
+</html>
