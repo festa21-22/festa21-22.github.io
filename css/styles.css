@@ -144,8 +144,8 @@ svg { display: block; }
   font-size: .78rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
   color: var(--texto-2);
 }
-/* "fiESTA": sin ligaduras (Fraunces une la "f" y la "i" en un solo glifo "ﬁ")
-   y con las minúsculas en otro color para que se distingan bien. */
+/* Título: sin ligaduras (Fraunces une p. ej. "fi" en un solo glifo "ﬁ").
+   Si el nombre empieza en minúscula, esas letras van en otro color. */
 .portada__titulo, .cabecera__marca {
   font-variant-ligatures: none;
   font-feature-settings: "liga" 0, "clig" 0, "dlig" 0;

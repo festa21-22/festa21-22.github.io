@@ -72,7 +72,7 @@
   var resultado = $('resultado');
 
   function pintarResultado(animar) {
-    $('resKicker').textContent = 'Reto nº ' + dosCifras(numero);
+    $('resKicker').textContent = 'Repte núm. ' + dosCifras(numero);
     $('resTexto').textContent = F.retos[numero - 1];
     btn.hidden = true;
     resultado.hidden = false;

@@ -29,12 +29,15 @@
     return n;
   }
 
+  // La web está en catalán: 'ca-ES' hace que Intl escriba "dissabte", "novembre"...
+  var IDIOMA = 'ca-ES';
+
   function fmt(fechaISO, opciones) {
     var o = Object.assign({ timeZone: ZONA }, opciones);
-    return new Intl.DateTimeFormat('es-ES', o).format(new Date(fechaISO));
+    return new Intl.DateTimeFormat(IDIOMA, o).format(new Date(fechaISO));
   }
   var hora = function (iso) { return fmt(iso, { hour: '2-digit', minute: '2-digit' }); };
-  // Intl devuelve "sábado, 21 de noviembre": quitamos la coma para que quede más natural
+  // Intl devuelve "dissabte, 21 de novembre": quitamos la coma para que quede más natural
   var diaLargo = function (iso) { return fmt(iso, { weekday: 'long', day: 'numeric', month: 'long' }).replace(',', ''); };
   var capital = function (s) { return s.charAt(0).toUpperCase() + s.slice(1); };
 
@@ -54,8 +57,8 @@
     });
   }
 
-  // "fiESTA": las minúsculas iniciales van en un <span> aparte para darles
-  // otro color y que se vea claro que "fi" es minúscula y "ESTA" mayúscula.
+  // Si el nombre empieza en minúsculas (p. ej. "fESTA"), esas letras van en
+  // un <span> aparte para darles otro color. Con "FESTA" se pinta tal cual.
   function pintarNombre(nodo, nombre) {
     var m = /^(\p{Ll}+)(.*)$/u.exec(nombre);  // \p{Ll} = cualquier letra minúscula (incluye ñ, á...)
     nodo.replaceChildren();

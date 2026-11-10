@@ -29,7 +29,7 @@
       var ahora = Date.now();
 
       if (ahora >= fin) {
-        titulo.textContent = 'La fiesta ha terminado';
+        titulo.textContent = "La festa s'ha acabat";
         cajas.hidden = true;
         clearInterval(temporizador);
         return;
@@ -39,7 +39,7 @@
       var objetivo = inicio;
       if (ahora >= inicio) {
         objetivo = fin;
-        titulo.textContent = '¡Ha empezado! Quedan';
+        titulo.textContent = 'Ha començat! Queden';
         $('cuenta').classList.add('cuenta--empezada');
       }
 
@@ -58,6 +58,7 @@
 
   function pintarInfo() {
     var mismoDia = C.fmt(F.inicio, { dateStyle: 'short' }) === C.fmt(F.fin, { dateStyle: 'short' });
+    // Textos en catalán: "Del dissabte 21 de novembre (17:00) al diumenge..."
     $('infoCuando').textContent = mismoDia
       ? C.capital(diaLargo(F.inicio)) + ', de ' + hora(F.inicio) + ' a ' + hora(F.fin)
       : 'Del ' + diaLargo(F.inicio) + ' (' + hora(F.inicio) + ') al ' + diaLargo(F.fin) + ' (' + hora(F.fin) + ')';

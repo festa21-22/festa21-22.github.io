@@ -1,17 +1,17 @@
 <!doctype html>
-<html lang="es">
+<html lang="ca">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>fiESTA · 21–22 noviembre</title>
-  <meta name="description" content="Toda la información de la fiesta: horarios, ubicación, agenda y tu reto personal.">
+  <title>FESTA · 21–22 novembre</title>
+  <meta name="description" content="Tota la informació de la festa: horaris, ubicació, agenda i el teu repte personal.">
   <meta name="theme-color" content="#0b1028">
   <!-- Fiesta privada: pedimos a los buscadores que no la indexen -->
   <meta name="robots" content="noindex, nofollow">
 
   <!-- Vista previa al compartir el enlace por WhatsApp -->
-  <meta property="og:title" content="fiESTA · 21–22 noviembre">
-  <meta property="og:description" content="Horarios, ubicación, agenda y tu reto personal.">
+  <meta property="og:title" content="FESTA · 21–22 novembre">
+  <meta property="og:description" content="Horaris, ubicació, agenda i el teu repte personal.">
   <meta property="og:type" content="website">
 
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
@@ -31,7 +31,7 @@
 </head>
 <body>
 
-<a class="saltar" href="#info">Saltar a la información</a>
+<a class="saltar" href="#info">Salta a la informació</a>
 
 <main>
 
@@ -44,13 +44,13 @@
     <svg class="guirnalda-top" id="guirnaldaTop" viewBox="0 0 400 70" aria-hidden="true"></svg>
 
     <div class="portada__texto">
-      <p class="portada__etiqueta" data-campo="etiqueta">Fiesta privada en casa rural</p>
-      <h1 class="portada__titulo" id="titulo" data-campo="nombre" data-nombre><span class="nombre__min">fi</span>ESTA</h1>
-      <p class="portada__sub" data-campo="subtitulo">21–22 NOVIEMBRE</p>
+      <p class="portada__etiqueta" data-campo="etiqueta">Festa privada en una casa rural</p>
+      <h1 class="portada__titulo" id="titulo" data-campo="nombre" data-nombre>FESTA</h1>
+      <p class="portada__sub" data-campo="subtitulo">21–22 NOVEMBRE</p>
     </div>
 
     <!-- Ilustración de la casa. Las clases (.muro, .ventana...) dan el color desde el CSS -->
-    <svg class="casa" viewBox="0 0 400 250" role="img" aria-label="Casa rural de noche con luces de fiesta">
+    <svg class="casa" viewBox="0 0 400 250" role="img" aria-label="Casa rural de nit amb llums de festa">
       <defs>
         <radialGradient id="luzSuelo" cx="50%" cy="50%" r="50%">
           <stop offset="0" stop-color="#ffc65c" stop-opacity=".45"/>
@@ -151,17 +151,17 @@
     </svg>
 
     <div class="cuenta" id="cuenta">
-      <p class="cuenta__titulo" id="cuentaTitulo">Empieza en</p>
+      <p class="cuenta__titulo" id="cuentaTitulo">Falten</p>
       <div class="cuenta__cajas" id="cuentaCajas">
-        <div class="caja"><span class="caja__num" data-u="d">--</span><span class="caja__lbl">días</span></div>
-        <div class="caja"><span class="caja__num" data-u="h">--</span><span class="caja__lbl">horas</span></div>
+        <div class="caja"><span class="caja__num" data-u="d">--</span><span class="caja__lbl">dies</span></div>
+        <div class="caja"><span class="caja__num" data-u="h">--</span><span class="caja__lbl">hores</span></div>
         <div class="caja"><span class="caja__num" data-u="m">--</span><span class="caja__lbl">min</span></div>
         <div class="caja"><span class="caja__num" data-u="s">--</span><span class="caja__lbl">seg</span></div>
       </div>
       <p class="cuenta__fecha" id="cuentaFecha"></p>
     </div>
 
-    <a class="btn btn--luz portada__cta" href="#info">Ver la información</a>
+    <a class="btn btn--luz portada__cta" href="#info">Veure la informació</a>
   </section>
 
 
@@ -169,7 +169,7 @@
   <section id="info" class="seccion" aria-labelledby="h-info">
     <header class="seccion__cab revelar">
       <p class="seccion__num">01</p>
-      <h2 id="h-info">Información</h2>
+      <h2 id="h-info">Informació</h2>
     </header>
 
     <div class="tarjetas">
@@ -177,7 +177,7 @@
         <div class="tarjeta__icono" aria-hidden="true">
           <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
         </div>
-        <h3>Cuándo</h3>
+        <h3>Quan</h3>
         <p id="infoCuando"></p>
       </article>
 
@@ -185,7 +185,7 @@
         <div class="tarjeta__icono" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h8l4 4v14"/><path d="M2 21h20M14 12h.01"/></svg>
         </div>
-        <h3>Horario de entrada</h3>
+        <h3>Horari d'entrada</h3>
         <p id="infoEntrada"></p>
         <p class="tarjeta__nota" id="infoEntradaNota"></p>
       </article>
@@ -194,12 +194,12 @@
         <div class="tarjeta__icono" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
         </div>
-        <h3>Dónde</h3>
+        <h3>On</h3>
         <p class="lugar__nombre" id="lugarNombre"></p>
         <p id="lugarDireccion"></p>
         <p class="tarjeta__nota" id="lugarIndicaciones"></p>
         <a class="btn btn--luz" id="lugarMaps" href="#" target="_blank" rel="noopener">
-          Abrir en Google Maps
+          Obre a Google Maps
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
         </a>
       </article>
@@ -208,25 +208,25 @@
         <div class="tarjeta__icono" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
         </div>
-        <h3>Qué llevar</h3>
+        <h3>Què cal portar</h3>
         <ul class="lista-llevar" id="listaLlevar"></ul>
       </article>
     </div>
 
     <div class="agenda revelar">
       <h3 class="agenda__titulo">Agenda</h3>
-      <div class="agenda__tabs" role="tablist" aria-label="Días" id="agendaTabs"></div>
+      <div class="agenda__tabs" role="tablist" aria-label="Dies" id="agendaTabs"></div>
       <ol class="agenda__lista" id="agendaPanel" role="tabpanel"></ol>
     </div>
   </section>
 
 
   <!-- =================================================== ENLACE AL RETO -->
-  <section class="seccion" aria-label="Tu reto">
+  <section class="seccion" aria-label="El teu repte">
     <a class="banner-reto revelar" href="reto.html">
       <span class="banner-reto__texto">
-        <span class="banner-reto__kicker">Cada invitado tiene uno</span>
-        <strong>Descubre tu reto personal</strong>
+        <span class="banner-reto__kicker">Cada convidat en té un</span>
+        <strong>Descobreix el teu repte personal</strong>
       </span>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </a>
@@ -237,7 +237,7 @@
   <section id="faq" class="seccion" aria-labelledby="h-faq">
     <header class="seccion__cab revelar">
       <p class="seccion__num">02</p>
-      <h2 id="h-faq">Preguntas frecuentes</h2>
+      <h2 id="h-faq">Preguntes freqüents</h2>
     </header>
     <!-- <details>/<summary>: acordeón nativo del navegador, accesible y sin JS -->
     <div class="faq revelar" id="faqLista"></div>
@@ -246,7 +246,7 @@
 </main>
 
 <footer class="pie">
-  <p>Fiesta privada · No compartas este enlace fuera del grupo</p>
+  <p>Festa privada · No comparteixis aquest enllaç fora del grup</p>
 </footer>
 
 
@@ -259,7 +259,7 @@
 <nav class="nav" aria-label="Menú">
   <a class="nav__item" href="#inicio" data-seccion="inicio">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>
-    <span>Inicio</span>
+    <span>Inici</span>
   </a>
   <a class="nav__item" href="#info" data-seccion="info">
     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
@@ -267,11 +267,11 @@
   </a>
   <a class="nav__item" href="reto.html" data-seccion="reto">
     <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2"/><circle cx="15" cy="15" r="1.2"/><circle cx="15" cy="9" r="1.2"/><circle cx="9" cy="15" r="1.2"/></svg>
-    <span>Mi reto</span>
+    <span>El meu repte</span>
   </a>
   <a class="nav__item" href="reto.html#subir" data-seccion="subir">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13.5" r="3.5"/></svg>
-    <span>Subir</span>
+    <span>Puja</span>
   </a>
 </nav>
 
