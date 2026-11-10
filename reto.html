@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mi reto · fiESTA 21–22 noviembre</title>
+  <meta name="description" content="Descubre tu reto personal para la fiesta y sube la prueba.">
+  <meta name="theme-color" content="#0b1028">
+  <meta name="robots" content="noindex, nofollow">
+
+  <meta property="og:title" content="Mi reto · fiESTA 21–22 noviembre">
+  <meta property="og:description" content="Descubre tu reto personal para la fiesta.">
+  <meta property="og:type" content="website">
+
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <script>document.documentElement.classList.add('js');</script>
+
+  <!-- Orden importante: datos → almacenamiento → común → lógica del reto -->
+  <script src="data.js" defer></script>
+  <script src="js/storage.js" defer></script>
+  <script src="js/comun.js" defer></script>
+  <script src="js/reto.js" defer></script>
+</head>
+<body>
+
+<a class="saltar" href="#reto">Saltar a tu reto</a>
+
+<!-- =================================================== CABECERA -->
+<header class="cabecera" id="cabecera">
+  <div class="cielo" aria-hidden="true"><div class="estrellas" id="estrellas"></div></div>
+  <svg class="guirnalda-top" id="guirnaldaTop" viewBox="0 0 400 70" aria-hidden="true"></svg>
+
+  <a class="cabecera__marca" href="index.html" data-campo="nombre" data-nombre><span class="nombre__min">fi</span>ESTA</a>
+  <h1 class="cabecera__titulo">Mi reto</h1>
+  <p class="cabecera__texto">Cada invitado tiene un reto secreto para la fiesta. Este es el tuyo.</p>
+</header>
+
+<main>
+
+  <!-- =================================================== MI RETO -->
+  <section id="reto" class="seccion seccion--reto" aria-labelledby="h-reto">
+    <h2 class="sr-only" id="h-reto">Tu reto personal</h2>
+
+    <!-- Máquina tragaperras: el número gira y se para en tu reto -->
+    <div class="maquina" id="maquina">
+      <p class="maquina__titulo">Tu número de reto</p>
+      <div class="rodillo" aria-hidden="true">
+        <div class="rodillo__tira" id="tira"><span class="rodillo__num">?</span></div>
+      </div>
+      <button class="btn btn--luz maquina__btn" id="btnDescubrir" type="button">Descubrir mi reto</button>
+    </div>
+
+    <!-- Resultado (se muestra al terminar la animación o en visitas posteriores) -->
+    <div class="resultado" id="resultado" hidden aria-live="polite">
+      <p class="resultado__kicker" id="resKicker">Reto nº 07</p>
+      <p class="resultado__texto" id="resTexto"></p>
+      <p class="resultado__captura">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13.5" r="3.5"/></svg>
+        Hazle captura a tu reto
+      </p>
+      <a class="btn btn--luz" href="#subir">Subir mi prueba</a>
+    </div>
+
+    <p class="aviso aviso--error" id="avisoAlmacen" hidden>
+      Tu navegador no deja guardar datos (¿modo incógnito?). <strong>Haz captura ahora:</strong>
+      si recargas la página te puede salir otro reto.
+    </p>
+
+    <p class="aviso">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      <span>Abre siempre la web desde el mismo navegador. Si la abres desde WhatsApp o Instagram
+      y luego desde Chrome o Safari, no verás el mismo reto.</span>
+    </p>
+  </section>
+
+
+  <!-- =================================================== SUBIR PRUEBA (fase 3) -->
+  <section id="subir" class="seccion" aria-labelledby="h-subir">
+    <header class="seccion__cab revelar">
+      <p class="seccion__num">02</p>
+      <h2 id="h-subir">Subir prueba</h2>
+    </header>
+    <div class="tarjeta tarjeta--pronto revelar">
+      <p>Aquí podrás subir la foto o el vídeo de tu reto.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="pie">
+  <p>Fiesta privada · No compartas este enlace fuera del grupo</p>
+</footer>
+
+<!-- Capa para el confeti (no recibe clics) -->
+<div class="confeti" id="confeti" aria-hidden="true"></div>
+
+
+<!-- =================================================== MENÚ
+     Mismo menú que en index.html. Si lo cambias aquí, cámbialo también allí. -->
+<nav class="nav" aria-label="Menú">
+  <a class="nav__item" href="index.html" data-seccion="inicio">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>
+    <span>Inicio</span>
+  </a>
+  <a class="nav__item" href="index.html#info" data-seccion="info">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+    <span>Info</span>
+  </a>
+  <a class="nav__item" href="#reto" data-seccion="reto">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2"/><circle cx="15" cy="15" r="1.2"/><circle cx="15" cy="9" r="1.2"/><circle cx="9" cy="15" r="1.2"/></svg>
+    <span>Mi reto</span>
+  </a>
+  <a class="nav__item" href="#subir" data-seccion="subir">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13.5" r="3.5"/></svg>
+    <span>Subir</span>
+  </a>
+</nav>
+
+</body>
+</html>
