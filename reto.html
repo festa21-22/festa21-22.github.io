@@ -21,11 +21,12 @@
 
   <script>document.documentElement.classList.add('js');</script>
 
-  <!-- Orden importante: datos → almacenamiento → común → lógica del reto -->
+  <!-- Orden importante: datos → almacenamiento → común → reto → subida (usa el reto) -->
   <script src="data.js" defer></script>
   <script src="js/storage.js" defer></script>
   <script src="js/comun.js" defer></script>
   <script src="js/reto.js" defer></script>
+  <script src="js/upload.js" defer></script>
 </head>
 <body>
 
@@ -80,14 +81,85 @@
   </section>
 
 
-  <!-- =================================================== SUBIR PRUEBA (fase 3) -->
+  <!-- =================================================== SUBIR PRUEBA -->
   <section id="subir" class="seccion" aria-labelledby="h-subir">
     <header class="seccion__cab revelar">
       <p class="seccion__num">02</p>
       <h2 id="h-subir">Puja la prova</h2>
     </header>
-    <div class="tarjeta tarjeta--pronto revelar">
-      <p>Aquí podràs pujar la foto o el vídeo del teu repte.</p>
+    <p class="seccion__intro revelar">
+      Fes una foto o un vídeo complint el teu repte i puja'l aquí.
+      Només els organitzadors el veuran.
+    </p>
+
+    <p class="aviso aviso--demo" id="avisoDemo" hidden>
+      <strong>Mode de prova:</strong> la pujada és simulada, no s'envia res de veritat.
+    </p>
+    <p class="aviso aviso--error" id="avisoConfig" hidden>
+      La pujada encara no està configurada. Torna-ho a provar més tard.
+    </p>
+
+    <!-- novalidate: validamos nosotros en JS para dar mensajes en catalán y con estilo propio -->
+    <form class="form tarjeta revelar" id="formSubir" novalidate>
+      <div class="campo">
+        <label class="campo__label" for="campoNombre">El teu nom</label>
+        <!-- font-size 16px en el CSS: con menos, el iPhone hace zoom al enfocar -->
+        <input class="campo__input" id="campoNombre" name="nombre" type="text"
+               autocomplete="given-name" maxlength="40" placeholder="Com et dius?" required>
+        <p class="campo__error" id="errorNombre" hidden></p>
+      </div>
+
+      <div class="campo">
+        <span class="campo__label">Repte</span>
+        <p class="campo__reto"><strong id="campoReto">—</strong> <span>assignat automàticament</span></p>
+        <p class="campo__error" id="errorReto" hidden></p>
+      </div>
+
+      <div class="campo">
+        <span class="campo__label" id="lblArchivo">Foto o vídeo</span>
+        <!-- El <input type=file> real está oculto visualmente; el <label> hace de botón grande -->
+        <label class="selector" for="campoArchivo" id="selector">
+          <input class="sr-only" id="campoArchivo" name="archivo" type="file"
+                 accept="image/*,video/*" aria-labelledby="lblArchivo" aria-describedby="ayudaArchivo">
+          <span class="selector__vacio" id="selectorVacio">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+            <span class="selector__titulo">Tria una foto o un vídeo</span>
+            <span class="selector__ayuda" id="ayudaArchivo">Màxim 25 MB · vídeos curts, d'uns 30 segons</span>
+          </span>
+          <span class="selector__lleno" id="selectorLleno" hidden>
+            <span class="selector__preview" id="preview"></span>
+            <span class="selector__info">
+              <span class="selector__nombre" id="archivoNombre"></span>
+              <span class="selector__peso" id="archivoPeso"></span>
+            </span>
+            <span class="selector__cambiar">Canvia</span>
+          </span>
+        </label>
+        <p class="campo__error" id="errorArchivo" hidden></p>
+        <p class="campo__nota" id="notaArchivo" hidden></p>
+      </div>
+
+      <button class="btn btn--luz form__enviar" type="submit" id="btnEnviar">Puja la prova</button>
+
+      <div class="progreso" id="progreso" hidden>
+        <div class="progreso__barra" role="progressbar" aria-labelledby="progresoTexto"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progresoBarra">
+          <span class="progreso__relleno" id="progresoRelleno"></span>
+        </div>
+        <p class="progreso__texto" id="progresoTexto">Preparant l'arxiu…</p>
+        <p class="progreso__nota">No tanquis aquesta pàgina fins que acabi.</p>
+      </div>
+
+      <p class="mensaje mensaje--error" id="mensajeError" role="alert" hidden></p>
+    </form>
+
+    <div class="exito tarjeta" id="exito" hidden tabindex="-1">
+      <div class="exito__icono" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      </div>
+      <h3>Prova pujada!</h3>
+      <p id="exitoTexto">Ja la tenen els organitzadors.</p>
+      <button class="btn btn--secundario" type="button" id="btnOtra">Puja'n una altra</button>
     </div>
   </section>
 

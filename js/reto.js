@@ -57,12 +57,20 @@
 
   var numero = obtenerReto();
 
-  // Disponible para upload.js (fase 3)
+  // Disponible para upload.js. "revelado" indica si la persona ya ha visto
+  // su reto (para no destripárselo en el formulario antes de la animación).
   window.MiReto = {
     numero: numero,
     etiqueta: dosCifras(numero),
-    texto: F.retos[numero - 1]
+    texto: F.retos[numero - 1],
+    revelado: false
   };
+
+  function marcarRevelado() {
+    window.MiReto.revelado = true;
+    // Evento propio: upload.js lo escucha para actualizar el formulario
+    document.dispatchEvent(new CustomEvent('reto:revelado'));
+  }
 
   /* ---------- Interfaz ---------- */
 
@@ -123,6 +131,7 @@
     mostrarNumeroFijo();
     maquina.classList.remove('maquina--girando');
     A.guardar(CLAVE_REVELADO, '1');
+    marcarRevelado();
     pintarResultado(true);
     if (!sinMovimiento) confeti();
     if (navigator.vibrate) navigator.vibrate([30, 50, 80]);  // solo Android
@@ -171,6 +180,7 @@
     // Visita posterior: directamente el resultado
     mostrarNumeroFijo();
     pintarResultado(false);
+    marcarRevelado();
   } else {
     btn.addEventListener('click', girar);
   }

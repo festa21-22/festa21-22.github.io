@@ -119,11 +119,20 @@ window.FIESTA = {
 
 
   /* ---------- SUBIDA DE PRUEBAS (Google Apps Script) ----------
-     Se rellena en la fase 3 siguiendo apps-script/GUIA.md                 */
+     Cómo conseguir la URL y la clave: apps-script/GUIA.md
+
+     scriptUrl puede ser:
+       "demo"  → MODO DE PRUEBA: la subida se simula y sale un aviso en la web.
+                 Útil para probar el diseño sin backend. ⚠️ NO publicar así.
+       ""      → la subida aparece desactivada ("encara no està configurada").
+       "https://script.google.com/macros/s/XXXX/exec" → subida real a Drive.
+
+     ⚠️  maxMB: no subas de 25. El archivo viaja en base64 (+33 %) y Apps
+         Script empieza a fallar con peticiones de unos 50 MB.            */
   subida: {
-    scriptUrl: "",          // URL de la aplicación web de Apps Script (termina en /exec)
-    clave: "",              // la misma clave que pongas en Code.gs
-    maxMB: 25,              // tamaño máximo por archivo
+    scriptUrl: "demo",
+    clave: "",              // la misma clave que pongas en CONFIG.CLAVE de Code.gs
+    maxMB: 25,              // tamaño máximo por archivo (MB)
     segundosVideoRecomendados: 30
   }
 };
