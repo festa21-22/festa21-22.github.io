@@ -4,6 +4,9 @@ Web de una fiesta privada (~50 personas) en una casa rural. Estática (HTML +
 CSS + JavaScript sin frameworks ni build), publicada en GitHub Pages. La web
 está en **catalán**.
 
+- **Web:** <https://festa21-22.github.io>
+- **Repositorio:** <https://github.com/festa21-22/festa21-22.github.io>
+
 - **`index.html`** — portada con cuenta atrás, información, agenda y FAQ.
 - **`reto.html`** — reto personal (tragaperras) y subida de la foto/vídeo de la prueba.
 
@@ -69,16 +72,16 @@ Para probar en un móvil de verdad, lo más fácil es publicarlo en GitHub Pages
 
 ## Publicar en GitHub Pages
 
-1. Crea un repositorio en GitHub (con cuenta gratuita debe ser **público**
-   para usar Pages). No marques "Add a README".
-2. Sube el código:
-   ```bash
-   git remote add origin https://github.com/USUARIO/REPO.git
-   git push -u origin main
-   ```
-3. En GitHub: **Settings → Pages → Build and deployment → Source: Deploy from a branch**
+El repositorio está en la organización `festa21-22` y se llama
+`festa21-22.github.io`. Con ese nombre especial, GitHub Pages lo sirve en la
+raíz del dominio: **<https://festa21-22.github.io>** (sin subcarpeta).
+
+1. Primera vez (ya hecho): el remoto `origin` apunta a
+   `https://github.com/festa21-22/festa21-22.github.io.git`.
+2. En GitHub: **Settings → Pages → Build and deployment → Source: Deploy from a branch**
    → Branch: `main`, carpeta `/ (root)` → **Save**.
-4. En 1–2 minutos estará en `https://USUARIO.github.io/REPO/`.
+   Con plan gratuito el repositorio debe ser **público** para usar Pages.
+3. En 1–2 minutos estará en <https://festa21-22.github.io>.
    Cada `git push` a `main` la actualiza sola.
 
 La web lleva `noindex` para que Google no la muestre en búsquedas, pero el
@@ -86,7 +89,9 @@ enlace es accesible para quien lo tenga: compártelo solo por el grupo.
 
 ## Trabajar entre dos
 
-- Añade a tu compañero en **Settings → Collaborators → Add people**.
+- Añade a tu compañero a la organización `festa21-22` (o al repositorio en
+  **Settings → Collaborators and teams**). Él descarga el proyecto con:
+  `git clone https://github.com/festa21-22/festa21-22.github.io.git`
 - Antes de empezar a trabajar: `git pull`. Al terminar: `git add`, `git commit`, `git push`.
 - Si los dos tocáis lo mismo a la vez, git pedirá resolver el conflicto: avisaos
   de quién está editando qué (sobre todo `data.js`).

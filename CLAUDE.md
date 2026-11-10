@@ -9,7 +9,9 @@ sin enrollarte.
 
 Web estática de una fiesta privada (~50 personas) en una casa rural, el
 21–22 de noviembre de 2026. Casi todos la abren desde el **móvil** (mobile-first).
-Publicada en **GitHub Pages**; subida de archivos a Google Drive con **Google Apps Script**.
+Publicada en **GitHub Pages** en <https://festa21-22.github.io> (repo
+`festa21-22/festa21-22.github.io`, se sirve en la raíz del dominio); subida de
+archivos a Google Drive con **Google Apps Script**.
 
 ## Reglas del proyecto (no negociables)
 
