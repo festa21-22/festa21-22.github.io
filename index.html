@@ -198,13 +198,22 @@
         <p class="lugar__nombre" id="lugarNombre"></p>
         <p id="lugarDireccion"></p>
         <p class="tarjeta__nota" id="lugarIndicaciones"></p>
-        <a class="btn btn--luz" id="lugarMaps" href="#" target="_blank" rel="noopener">
-          Obre a Google Maps
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
-        </a>
+        <!-- Los dos botones van juntos: apilados en móvil, en fila en pantallas anchas -->
+        <div class="tarjeta__botones">
+          <a class="btn btn--luz" id="lugarMaps" href="#" target="_blank" rel="noopener">
+            Obre a Google Maps
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+          </a>
+          <!-- href desde FIESTA.lugar.pdf; si está vacío, info.js oculta el botón -->
+          <a class="btn btn--secundario" id="lugarPdf" href="#" target="_blank" rel="noopener" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
+            Indicacions per arribar (PDF)
+          </a>
+        </div>
       </article>
 
-      <article class="tarjeta tarjeta--ancha revelar">
+      <!-- "Què cal portar": oculto mientras FIESTA.mostrarLlevar sea false -->
+      <article class="tarjeta tarjeta--ancha revelar" id="tarjetaLlevar">
         <div class="tarjeta__icono" aria-hidden="true">
           <svg viewBox="0 0 24 24"><path d="M6 8h12l-1 13H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
         </div>

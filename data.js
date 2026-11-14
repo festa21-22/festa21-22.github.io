@@ -49,11 +49,17 @@ window.FIESTA = {
     // Enlace de Google Maps. Si lo dejas vacío "", se genera solo a partir
     // de la dirección. Para uno exacto: Google Maps > Compartir > Copiar enlace.
     mapsUrl: "",
-    indicaciones: "Els últims 2 km són de camí de terra: ves a poc a poc. Es pot aparcar a l'esplanada de l'entrada."
+    indicaciones: "Els últims 2 km són de camí de terra: ves a poc a poc. Es pot aparcar a l'esplanada de l'entrada.",
+    // PDF con las indicaciones para llegar (se abre en una pestaña nueva).
+    // "" = no se muestra el botón.
+    pdf: "assets/com-arribar.pdf"
   },
 
 
-  /* ---------- QUÉ HAY QUE LLEVAR ---------- */
+  /* ---------- QUÉ HAY QUE LLEVAR ----------
+     De momento OCULTO. Para volver a mostrarlo: mostrarLlevar: true
+     (la lista se conserva tal cual; ⚠️ es de EJEMPLO, revísala antes).      */
+  mostrarLlevar: false,
   llevar: [
     "Sac de dormir o llençols i coixí",
     "Tovallola i necesser",

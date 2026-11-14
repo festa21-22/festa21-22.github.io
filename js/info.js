@@ -77,8 +77,19 @@
     $('lugarMaps').href = l.mapsUrl ||
       'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(l.nombre + ', ' + l.direccion);
 
-    var ul = $('listaLlevar');
-    F.llevar.forEach(function (cosa) { ul.appendChild(el('li', null, cosa)); });
+    // Botón del PDF: solo si hay archivo configurado en data.js
+    if (l.pdf) {
+      $('lugarPdf').href = l.pdf;
+      $('lugarPdf').hidden = false;
+    }
+
+    // "Què cal portar": desactivable desde data.js sin borrar la lista
+    if (F.mostrarLlevar && F.llevar && F.llevar.length) {
+      var ul = $('listaLlevar');
+      F.llevar.forEach(function (cosa) { ul.appendChild(el('li', null, cosa)); });
+    } else {
+      $('tarjetaLlevar').hidden = true;
+    }
   }
 
   /* ---------- Agenda con pestañas por día ---------- */

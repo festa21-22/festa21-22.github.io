@@ -276,6 +276,10 @@ svg { display: block; }
 .tarjeta__icono svg { width: 22px; height: 22px; fill: none; stroke: var(--luz); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
 .tarjeta__nota { margin-top: 8px !important; font-size: .9rem; color: var(--texto-2); }
 .tarjeta .btn { margin-top: 16px; width: 100%; }
+/* grupo de botones en una tarjeta (Maps + PDF): apilados en móvil */
+.tarjeta__botones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+/* line-height 1.25: si en un móvil muy estrecho el texto parte en 2 líneas, que no se monten */
+.tarjeta__botones .btn { margin-top: 0; line-height: 1.25; text-align: center; }
 .lugar__nombre { font-weight: 700; }
 .tarjeta--pronto { text-align: center; color: var(--texto-2); border-style: dashed; }
 
@@ -727,6 +731,7 @@ svg { display: block; }
   .tarjetas { grid-template-columns: 1fr 1fr; }
   .tarjeta--ancha { grid-column: 1 / -1; }
   .tarjeta .btn { width: auto; }
+  .tarjeta__botones .btn { flex: 1 1 auto; }
   .actividades { grid-template-columns: repeat(3, 1fr); }
   .actividad:last-child:nth-child(odd) { grid-column: auto; }
 }
