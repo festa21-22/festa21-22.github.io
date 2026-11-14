@@ -315,6 +315,14 @@ svg { display: block; }
 .evento__detalle { font-size: .92rem; color: var(--texto-2); }
 .evento--entra { animation: entrar .45s var(--ease) both; animation-delay: calc(var(--i) * 60ms); }
 
+/* actividades: rejilla de 2 columnas ya en móvil (son tarjetas cortas) */
+.actividades { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.actividad { padding: 18px 16px; }
+.actividad h3 { font-size: 1.05rem; line-height: 1.2; }
+.actividad__texto { font-size: .88rem; color: var(--texto-2); }
+/* si el número es impar, la última ocupa toda la fila */
+.actividad:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
 /* FAQ */
 .faq { display: grid; gap: 8px; }
 .faq details {
@@ -652,6 +660,8 @@ svg { display: block; }
   .tarjetas { grid-template-columns: 1fr 1fr; }
   .tarjeta--ancha { grid-column: 1 / -1; }
   .tarjeta .btn { width: auto; }
+  .actividades { grid-template-columns: repeat(3, 1fr); }
+  .actividad:last-child:nth-child(odd) { grid-column: auto; }
 }
 
 @media (min-width: 900px) {

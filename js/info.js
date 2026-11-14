@@ -67,6 +67,7 @@
     $('infoEntrada').textContent =
       'De ' + hora(e.desde) + ' a ' + hora(e.hasta) + ' h, el ' + diaLargo(e.desde) + '.';
     $('infoEntradaNota').textContent = e.nota || '';
+    $('infoEntradaNota').hidden = !e.nota;   // sin nota, no dejamos un hueco vacío
 
     var l = F.lugar;
     $('lugarNombre').textContent = l.nombre;
@@ -128,6 +129,51 @@
     mostrar(inicial >= 0 ? inicial : 0);
   }
 
+  /* ---------- Actividades (tarjetas sin hora) ---------- */
+
+  // Iconos de línea (24×24) como listas de trazos SVG. Se dibujan con
+  // createElementNS: los elementos SVG necesitan su "namespace" propio,
+  // con createElement normal no se verían.
+  var NS = 'http://www.w3.org/2000/svg';
+  function circulo(cx, cy, r) {
+    // un círculo escrito como dos arcos, para poder usar siempre <path>
+    return 'M' + (cx - r) + ' ' + cy + 'a' + r + ' ' + r + ' 0 1 0 ' + (2 * r) + ' 0a' + r + ' ' + r + ' 0 1 0 ' + (-2 * r) + ' 0';
+  }
+  var ICONOS = {
+    micro:   ['M12 3a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z', 'M5.5 11a6.5 6.5 0 0 0 13 0', 'M12 17.5V21M8.5 21h7'],
+    bingo:   [circulo(12, 12, 9), circulo(12, 12, 4.5), 'M12 10.5v3'],
+    karaoke: ['M9 18V5l11-2v13', circulo(6, 18, 3), circulo(17, 16, 3)],
+    pong:    ['M5 10h14l-2 10H7z', 'M5.6 13h12.8', circulo(12, 5, 2.2)],
+    dj:      ['M4 15v-3a8 8 0 0 1 16 0v3', 'M4 14h3v6H5.5A1.5 1.5 0 0 1 4 18.5zM20 14h-3v6h1.5a1.5 1.5 0 0 0 1.5-1.5z'],
+    estrella:['M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4l-5.3 3 1.2-6-4.5-4.1 6-.7z']
+  };
+
+  function icono(nombre) {
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    (ICONOS[nombre] || ICONOS.estrella).forEach(function (d) {
+      var p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', d);
+      svg.appendChild(p);
+    });
+    return svg;
+  }
+
+  function pintarActividades() {
+    var ul = $('listaActividades');
+    if (!F.actividades || !F.actividades.length) { $('activitats').hidden = true; return; }
+    F.actividades.forEach(function (a) {
+      var li = el('li', 'tarjeta actividad');
+      var ico = el('div', 'tarjeta__icono');
+      ico.setAttribute('aria-hidden', 'true');
+      ico.appendChild(icono(a.icono));
+      li.appendChild(ico);
+      li.appendChild(el('h3', 'actividad__nombre', a.nombre));
+      if (a.descripcion) li.appendChild(el('p', 'actividad__texto', a.descripcion));
+      ul.appendChild(li);
+    });
+  }
+
   /* ---------- FAQ ---------- */
 
   function pintarFAQ() {
@@ -144,6 +190,7 @@
   iniciarCuentaAtras();
   pintarInfo();
   pintarAgenda();
+  pintarActividades();
   pintarFAQ();
   C.irAlAncla();
 })();

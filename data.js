@@ -15,7 +15,10 @@
      después de editar, casi siempre es una coma o comilla que falta
      (abre la consola del navegador con F12 y mira el error).
 
-   ⚠️  TODO lo que hay ahora son DATOS DE EJEMPLO inventados.
+   ⚠️  Fechas, horarios, lugar, agenda y actividades ya son los REALES.
+       Siguen siendo de EJEMPLO (pendientes de confirmar): dirección,
+       indicaciones, "qué llevar", las respuestas de la FAQ, las
+       descripciones de las actividades y los retos.
    =========================================================================== */
 
 window.FIESTA = {
@@ -27,20 +30,21 @@ window.FIESTA = {
 
   // Inicio y fin de la fiesta. La cuenta atrás va hasta "inicio".
   inicio: "2026-11-21T17:00:00+01:00",
-  fin:    "2026-11-22T19:00:00+01:00",
+  fin:    "2026-11-22T15:00:00+01:00",   // diumenge a les 15:00 marxem
 
 
   /* ---------- HORARIO DE ENTRADA ---------- */
   entrada: {
     desde: "2026-11-21T17:00:00+01:00",   // a partir de cuándo se puede llegar
-    hasta: "2026-11-21T21:00:00+01:00",   // hasta cuándo hay alguien abriendo
-    nota: "Si arribaràs més tard, avisa pel grup perquè algú t'obri la porta."
+    hasta: "2026-11-21T19:00:00+01:00",   // hasta cuándo
+    nota: ""                              // texto opcional bajo el horario ("" = nada)
   },
 
 
   /* ---------- UBICACIÓN ---------- */
   lugar: {
-    nombre: "Mas El Roure",
+    nombre: "Casa de Colònies Can Ramió",
+    // ⚠️ La dirección y las indicaciones son de EJEMPLO: cámbialas por las reales.
     direccion: "Camí del Molí 12, 17150 Sant Pere del Bosc, Girona",
     // Enlace de Google Maps. Si lo dejas vacío "", se genera solo a partir
     // de la dirección. Para uno exacto: Google Maps > Compartir > Copiar enlace.
@@ -62,34 +66,48 @@ window.FIESTA = {
 
 
   /* ---------- AGENDA ----------
+     Solo los momentos CON HORA. Las actividades sin hora van en
+     "actividades" (más abajo), para que no salgan repetidas.
      Un bloque por día. "fecha" (AAAA-MM-DD) sirve para que, el propio día,
-     la web abra directamente la pestaña de ese día.                        */
+     la web abra directamente la pestaña de ese día. "detalle" es opcional.  */
   agenda: [
     {
       dia: "Dissabte 21",
       fecha: "2026-11-21",
       eventos: [
-        { hora: "17:00", titulo: "Arribada i repartiment d'habitacions", detalle: "Deixa les teves coses i troba el teu llit." },
-        { hora: "18:30", titulo: "Jocs al jardí", detalle: "Per equips. Els equips es fan allà." },
-        { hora: "21:00", titulo: "Sopar: barbacoa", detalle: "Hi ha opció vegetariana." },
-        { hora: "23:00", titulo: "Festa", detalle: "Música al menjador i foguera a fora." }
+        { hora: "17:00 – 19:00", titulo: "Arribada de la gent + relax", detalle: "" },
+        { hora: "20:00", titulo: "Comença la festa", detalle: "" },
+        { hora: "22:00", titulo: "Sopar", detalle: "Menú per decidir. Hi haurà opció vegetariana i per a intoleràncies alimentàries." }
       ]
     },
     {
       dia: "Diumenge 22",
       fecha: "2026-11-22",
       eventos: [
-        { hora: "11:00", titulo: "Esmorzar", detalle: "Fins que s'acabi el cafè." },
-        { hora: "12:30", titulo: "Passeig pel poble", detalle: "Opcional, uns 40 minuts." },
-        { hora: "14:30", titulo: "Dinar", detalle: "" },
-        { hora: "17:00", titulo: "Recollida entre tots", detalle: "Com més serem, abans acabarem." },
-        { hora: "19:00", titulo: "Sortida de la casa", detalle: "" }
+        { hora: "12:00", titulo: "Recollida", detalle: "" },
+        { hora: "13:30", titulo: "Dinar", detalle: "" },
+        { hora: "15:00", titulo: "Marxem", detalle: "" }
       ]
     }
   ],
 
 
-  /* ---------- PREGUNTAS FRECUENTES ---------- */
+  /* ---------- ACTIVIDADES ----------
+     Tarjetas SIN hora. "icono" es uno de estos nombres (dibujos en info.js):
+       "micro", "bingo", "karaoke", "pong", "dj"   (si no existe, sale una estrella)
+     ⚠️ Las descripciones son de EJEMPLO: cámbialas por las vuestras
+        (o déjalas en "" y la tarjeta sale solo con el nombre).             */
+  actividades: [
+    { nombre: "Monòleg",       icono: "micro",   descripcion: "Riure és obligatori. Aplaudir, també." },
+    { nombre: "Bingo Musical", icono: "bingo",   descripcion: "Com el bingo de l'àvia, però amb cançons." },
+    { nombre: "Karaoke",       icono: "karaoke", descripcion: "Afinar és opcional. Cantar, no." },
+    { nombre: "Beer Pong",     icono: "pong",    descripcion: "Primer la punteria, després la dignitat." },
+    { nombre: "DJ",            icono: "dj",      descripcion: "S'accepten peticions. Queixes, no." }
+  ],
+
+
+  /* ---------- PREGUNTAS FRECUENTES ----------
+     ⚠️ Respuestas de EJEMPLO (precio, aparcamiento, camas): revísalas.     */
   faq: [
     { pregunta: "Puc portar algú?",
       respuesta: "Pregunta-ho abans a l'organització: les places per dormir són limitades." },
