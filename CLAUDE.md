@@ -31,6 +31,10 @@ archivos a Google Drive con **Google Apps Script**.
 |---|---|
 | `index.html` | Portada (casa SVG, cuenta atrás), información, agenda (solo momentos con hora), activitats (tarjetas sin hora), FAQ |
 | `reto.html` | Elección de dificultad + reto personal (tragaperras) + formulario de subida |
+| `match.html` | «Match de la festa»: registro con nombre + PIN, lista de participantes, likes, matches mutuos |
+| `js/match.js` | Interfaz del Match. No decide nada: pinta lo que devuelve el servidor |
+| `js/match-demo.js` | Servidor simulado (localStorage) con el mismo contrato que `Match.gs`. Solo con `scriptUrl:"demo"` o `match.html?demo` en localhost |
+| `apps-script/Match.gs` | Backend del Match (segundo archivo del mismo proyecto de Apps Script; Sheet como BD) |
 | `data.js` | Datos editables. Cargar SIEMPRE primero |
 | `js/comun.js` | `window.Comun`: utilidades (`$`, `el`, formato de fechas `ca-ES` en `Europe/Madrid`), guirnaldas, estrellas, `IntersectionObserver` (aparición y menú activo), `irAlAncla()` |
 | `js/info.js` | Solo `index.html` |
@@ -84,6 +88,48 @@ Orden de scripts (todos con `defer`): `data.js` → `storage.js` → `comun.js` 
 - Archivos en Drive: `Nombre_Dificil_Reto07_yyyy-MM-dd_HH-mm-ss.ext`
   (dificultad sin acentos: `Facil`, `Mitja`, `Dificil`).
 
+## Match de la festa — reglas de privacidad (no negociables)
+
+Maneja información sensible (a quién le gusta quién). Guía de despliegue y
+lista de pruebas: `apps-script/GUIA.md` (sección «Match de la festa»).
+
+- **Toda la lógica sensible en el servidor** (`Match.gs`): comprobar PIN,
+  guardar likes, calcular matches, hora de revelación, bloqueo, validación.
+  El cliente nunca calcula matches ni recibe datos ajenos.
+- **El servidor solo devuelve** nombres de participantes (`{id, nombre}`), los
+  likes **propios** y los matches **propios**. **Nunca** quién ha dado like a
+  alguien si no es recíproco, ni hashes, ni datos de otras cuentas. Que nada
+  ajeno sea visible con F12.
+- Antes de `REVELACION`, un like recíproco responde **igual** que uno no
+  recíproco (`match: null`) y `estado` devuelve `matches: []`.
+- **PIN:** 4 cifras; en la Sheet solo `SHA-256(pimienta + ":" + salt + ":" + PIN)`.
+  Salt aleatorio por usuario; pimienta en Propiedades del script
+  (`MATCH_PIMIENTA`), nunca en la Sheet ni en el repo.
+- **Sesión:** token aleatorio que da el servidor; en la Sheet se guarda su
+  SHA-256. En el móvil (`fiesta2122:match-sesion`) solo `{id, token, nombre}`,
+  **nunca el PIN**. Entrar de nuevo genera token nuevo (cierra otras sesiones).
+- **Fuerza bruta:** 5 PIN fallidos por nombre → bloqueado 15 min, incluso con
+  el PIN correcto. Nombre inexistente y PIN mal dan el mismo error (`credenciales`).
+- **Nombres:** se comparan normalizados (minúsculas, sin acentos, espacios
+  colapsados). 3–40 caracteres, empiezan por letra (evita inyección de
+  fórmulas en Sheets: nada que empiece por `= + - @`). Columnas en formato texto.
+- Todas las peticiones del Match pasan por `LockService` (registros con el mismo
+  nombre o likes cruzados simultáneos).
+- **Consulta periódica:** cada 45 s como mínimo (`match.segundosConsulta`, el
+  código no deja bajar) y **solo con la página visible** (Page Visibility API).
+  Cada match anima una sola vez: el servidor marca `match_vist` al entregarlo.
+- **Baja:** borra la fila del participante y todos los likes dados y recibidos.
+- Los organizadores pueden ver la Sheet: no se oculta; el texto de la web dice
+  que se comprometen a no mirarla.
+- **Contrato** (POST text/plain, mismo `doPost` y `clave` que la subida; con
+  `accion` va al Match): `registro`/`entrar` `{nombre, pin}` → `{ok, id, token, nombre}`;
+  `estado`/`like`/`quitarLike`/`salir`/`baja` con `{id, token}` (+ `a` = id destino).
+  `estado` → `{yo, participantes, likes, matches, nuevos, revelado, revelacion, maxLikes}`;
+  `like` → `{ok, match: {id, nombre} | null}`. Errores: `nombre`, `pin`,
+  `nombre_ocupado`, `credenciales` (+`quedan`), `bloqueado` (+`minutos`),
+  `sesion`, `no_existe`, `limite`, `lleno`, `ocupado`, `accion`, `datos`, `clave`.
+  Si cambias el contrato, cambia `Match.gs`, `match.js` y `match-demo.js` a la vez.
+
 ## Estilo de código
 
 - **JS:** cada archivo es una IIFE con `'use strict'`, `var` y funciones clásicas
@@ -95,8 +141,8 @@ Orden de scripts (todos con `defer`): `data.js` → `storage.js` → `comun.js` 
   (`.tarjeta__icono`, `.btn--luz`). Respetar `prefers-reduced-motion`.
   Botones táctiles ≥ 48 px. Inputs a 16 px (evita zoom en iOS).
 - **HTML:** semántico y accesible (`aria-*`, `<details>`, `role="tablist"`, etc.).
-  El menú inferior está **duplicado** en `index.html` y `reto.html`: si cambias
-  uno, cambia el otro.
+  El menú inferior está **duplicado** en `index.html`, `reto.html` y `match.html`:
+  si cambias uno, cambia los otros.
 - Comentarios breves que expliquen el **porqué**, en castellano.
 
 ## Probar
@@ -106,6 +152,8 @@ Orden de scripts (todos con `defer`): `data.js` → `storage.js` → `comun.js` 
   Mac/Linux: `python3 -m http.server 8080`.
 - Probar siempre en vista móvil (375×812) y comprobar la consola sin errores.
 - Re-sortear para pruebas: abrir `reto.html?reset` (o `localStorage.clear()` en la consola).
+- Match sin backend: `http://localhost:8080/match.html?demo` (participantes falsos;
+  `&revelacion=2` simula revelación en 2 min). Con backend real: lista de pruebas en `apps-script/GUIA.md`.
 
 ## Git
 

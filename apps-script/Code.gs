@@ -9,6 +9,9 @@
    escribir en tu carpeta aunque quien sube no tenga acceso a ella. Nadie más
    ve los archivos salvo las personas con las que compartas la carpeta.
 
+   El mismo doPost atiende también el "Match de la festa": si el JSON trae
+   "accion", lo pasa a atenderMatch() (archivo Match.gs del mismo proyecto).
+
    Guía completa: apps-script/GUIA.md
    =========================================================================== */
 
@@ -51,6 +54,10 @@ function doPost(e) {
     const p = JSON.parse(e.postData.contents);
 
     if (p.clave !== CONFIG.CLAVE) return responder({ ok: false, error: 'clave' });
+
+    // Match de la festa: las peticiones con "accion" van a Match.gs.
+    // Sin "accion" es una subida de prueba (contrato de siempre, sin cambios).
+    if (p.accion) return responder(atenderMatch(p));
 
     const reto = parseInt(p.reto, 10);
     const dificultad = DIFICULTADES[p.dificultad];

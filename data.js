@@ -207,5 +207,28 @@ window.FIESTA = {
     clave: "daniputovago",  // la misma clave que pongas en CONFIG.CLAVE de Code.gs
     maxMB: 25,              // tamaño máximo por archivo (MB)
     segundosVideoRecomendados: 30
+  },
+
+
+  /* ---------- MATCH DE LA FESTA (match.html) ----------
+     Usa el MISMO Apps Script y la misma clave que "subida" (arriba).
+     Toda la lógica y los datos están en el servidor (apps-script/Match.gs);
+     aquí solo van los textos y cada cuánto se consulta si hay matches nuevos.
+
+     ⚠️  segundosConsulta: no bajes de 45. Cada consulta es una ejecución de
+         Apps Script; con ~50 móviles abiertos a la vez se nota en las cuotas.
+         (El código no deja bajar de 45 aunque pongas menos.)
+     Para probar sin backend en tu ordenador: http://localhost:8080/match.html?demo  */
+  match: {
+    segundosConsulta: 45,
+    // Texto "Com funciona": un párrafo por línea
+    explicacion: [
+      "Apunta't amb el teu nom i cognoms i un PIN de 4 xifres que t'inventis. Només surts a la llista si t'hi apuntes.",
+      "Marca les persones que t'agradin. Pots desmarcar-les quan vulguis.",
+      "Si dues persones es marquen mútuament, és un match i totes dues ho veuran.",
+      "Si marques algú i no et marca, ningú no ho sabrà mai: els likes no recíprocs no es mostren a ningú.",
+      "Les dades es guarden en un full de càlcul dels organitzadors. Hi tenen accés, però es comprometen a no mirar-les.",
+      "Et pots donar de baixa quan vulguis: s'esborra el teu compte i tots els teus likes."
+    ]
   }
 };

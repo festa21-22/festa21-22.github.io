@@ -9,12 +9,14 @@ está en **catalán**.
 
 - **`index.html`** — portada con cuenta atrás, información, agenda y FAQ.
 - **`reto.html`** — reto personal (tragaperras) y subida de la foto/vídeo de la prueba.
+- **`match.html`** — «Match de la festa»: te apuntas con nombre + PIN, marcas a quien quieras y solo se ven los matches mutuos.
 
 ## Estructura
 
 ```
 index.html          Página de información
 reto.html           Página del reto + formulario de subida
+match.html          Match de la festa (likes y matches mutuos)
 data.js             ⭐ TODOS los datos editables (textos, horarios, retos, backend)
 css/styles.css      Estilos (mobile-first)
 js/comun.js         Compartido: utilidades, decoración, menú, animaciones de scroll
@@ -22,7 +24,9 @@ js/info.js          Solo index.html: cuenta atrás, info, agenda, FAQ
 js/storage.js       localStorage seguro (try/catch)
 js/reto.js          Sorteo y animación del reto
 js/upload.js        Formulario de subida a Apps Script
-apps-script/        Backend de Google Apps Script (Code.gs + GUIA.md)
+js/match.js         Interfaz del Match (la lógica está en el servidor)
+js/match-demo.js    Servidor simulado del Match para probar en local (?demo)
+apps-script/        Backend de Google Apps Script (Code.gs, Match.gs + GUIA.md)
 assets/             Favicon e imágenes
 serve.ps1           Servidor local para probar (Windows, sin instalar nada)
 ```

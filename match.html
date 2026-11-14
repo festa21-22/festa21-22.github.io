@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Match de la festa · FESTA 21–22 novembre</title>
+  <meta name="description" content="Marca qui t'agrada. Si és mutu, és un match.">
+  <meta name="theme-color" content="#0b1028">
+  <meta name="robots" content="noindex, nofollow">
+
+  <meta property="og:title" content="Match de la festa · FESTA 21–22 novembre">
+  <meta property="og:description" content="Marca qui t'agrada. Si és mutu, és un match.">
+  <meta property="og:type" content="website">
+
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <script>document.documentElement.classList.add('js');</script>
+
+  <!-- Orden: datos → almacenamiento → común → demo (solo se usa en pruebas) → match -->
+  <script src="data.js" defer></script>
+  <script src="js/storage.js" defer></script>
+  <script src="js/comun.js" defer></script>
+  <script src="js/match-demo.js" defer></script>
+  <script src="js/match.js" defer></script>
+</head>
+<body>
+
+<a class="saltar" href="#match">Salta al Match</a>
+
+<!-- =================================================== CABECERA -->
+<header class="cabecera">
+  <div class="cielo" aria-hidden="true"><div class="estrellas" id="estrellas"></div></div>
+  <svg class="guirnalda-top" id="guirnaldaTop" viewBox="0 0 400 70" aria-hidden="true"></svg>
+
+  <a class="cabecera__marca" href="index.html" data-campo="nombre" data-nombre>FESTA</a>
+  <h1 class="cabecera__titulo">Match de la festa</h1>
+  <p class="cabecera__texto">Marca qui t'agrada. Si és mutu, és un match.</p>
+</header>
+
+<main>
+  <section id="match" class="seccion seccion--match" aria-labelledby="h-match">
+    <h2 class="sr-only" id="h-match">Match de la festa</h2>
+
+    <p class="aviso aviso--demo" id="avisoDemo" hidden>
+      <strong>Mode de prova:</strong> dades simulades en aquest navegador, no s'envia res.
+    </p>
+    <p class="aviso aviso--error" id="avisoConfig" hidden>
+      El Match encara no està configurat. Torna-ho a provar més tard.
+    </p>
+
+    <!-- Cómo funciona: los párrafos salen de FIESTA.match.explicacion -->
+    <details class="como tarjeta" id="como" open>
+      <summary>Com funciona</summary>
+      <ul class="como__lista" id="comoLista"></ul>
+    </details>
+
+    <!-- ============ Sin sesión: entrar o registrarse ============ -->
+    <div class="acceso tarjeta" id="vistaAcceso" hidden>
+      <div class="pestanas" role="tablist" aria-label="Accés">
+        <button class="pestanas__btn" type="button" role="tab" id="tabEntrar"
+                aria-selected="true" aria-controls="formAcceso">Ja estic apuntat</button>
+        <button class="pestanas__btn" type="button" role="tab" id="tabRegistro"
+                aria-selected="false" aria-controls="formAcceso" tabindex="-1">Apunta-m'hi</button>
+      </div>
+
+      <form class="form" id="formAcceso" role="tabpanel" novalidate>
+        <div class="campo">
+          <label class="campo__label" for="campoNombre">Nom i cognoms</label>
+          <input class="campo__input" id="campoNombre" type="text" autocomplete="name"
+                 maxlength="40" placeholder="Com et diuen?" required>
+          <p class="campo__ayuda" id="ayudaNombre" hidden>Posa el nom amb què et coneix la gent: és el que veuran els altres.</p>
+        </div>
+
+        <div class="campo">
+          <label class="campo__label" for="campoPin" id="lblPin">PIN</label>
+          <!-- type=password + inputmode=numeric: puntos en pantalla y teclado numérico en el móvil -->
+          <input class="campo__input campo__input--pin" id="campoPin" type="password" inputmode="numeric"
+                 pattern="[0-9]*" maxlength="4" autocomplete="current-password" placeholder="••••" required>
+        </div>
+
+        <div class="campo" id="campoPin2Caja" hidden>
+          <label class="campo__label" for="campoPin2">Repeteix el PIN</label>
+          <input class="campo__input campo__input--pin" id="campoPin2" type="password" inputmode="numeric"
+                 pattern="[0-9]*" maxlength="4" autocomplete="new-password" placeholder="••••">
+          <p class="campo__ayuda">Inventa't 4 xifres i recorda-les: les necessitaràs per tornar a entrar.</p>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" id="campoRecordar" checked>
+          <span>Recorda'm en aquest dispositiu</span>
+        </label>
+
+        <button class="btn btn--luz form__enviar" type="submit" id="btnAcceso">Entra</button>
+        <p class="mensaje mensaje--error" id="errorAcceso" role="alert" hidden></p>
+        <p class="mensaje mensaje--ok" id="okAcceso" role="status" hidden></p>
+      </form>
+    </div>
+
+    <!-- ============ Con sesión ============ -->
+    <div class="dentro" id="vistaDentro" hidden>
+      <div class="hola">
+        <p class="hola__texto">Hola, <strong id="miNombre"></strong></p>
+        <button class="btn-enlace" type="button" id="btnSalir">Surt</button>
+      </div>
+
+      <!-- Mis matches (solo recíprocos) -->
+      <div class="tarjeta mis-matches">
+        <h3>Els teus matches</h3>
+        <p class="mis-matches__nota" id="notaMatches"></p>
+        <ul class="mis-matches__lista" id="listaMatches"></ul>
+      </div>
+
+      <!-- Participantes -->
+      <div class="participantes">
+        <div class="participantes__cab">
+          <h3>Qui s'hi ha apuntat</h3>
+          <p class="participantes__cuenta" id="cuenta"></p>
+        </div>
+        <label class="sr-only" for="buscar">Busca un nom</label>
+        <input class="campo__input" id="buscar" type="search" placeholder="Busca un nom…" autocomplete="off">
+        <ul class="personas" id="listaPersonas" aria-live="off"></ul>
+        <p class="participantes__vacio" id="sinPersonas" hidden></p>
+        <p class="mensaje mensaje--error" id="errorDentro" role="alert" hidden></p>
+      </div>
+
+      <button class="btn btn--peligro baja" type="button" id="btnBaja">Dona'm de baixa</button>
+    </div>
+
+    <p class="cargando" id="cargando" hidden>Carregant…</p>
+
+    <p class="aviso aviso--error" id="avisoAlmacen" hidden>
+      El teu navegador no deixa desar dades (mode incògnit?). Hauràs d'entrar amb el PIN cada vegada.
+    </p>
+  </section>
+</main>
+
+<footer class="pie">
+  <p>Festa privada · No comparteixis aquest enllaç fora del grup</p>
+</footer>
+
+<!-- Confirmación de baja (mismo patrón que reto.html) -->
+<dialog class="dialogo" id="dialogoBaja" aria-labelledby="bajaTitulo" aria-describedby="bajaTexto">
+  <form method="dialog">
+    <p class="dialogo__titulo" id="bajaTitulo">Segur?</p>
+    <p class="dialogo__texto" id="bajaTexto">S'esborraran el teu compte i tots els teus likes. No es pot desfer.</p>
+    <div class="dialogo__botones">
+      <button class="btn btn--secundario" value="no">Cancel·la</button>
+      <button class="btn btn--peligro" value="si">Sí, esborra-ho</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Animación de match a pantalla completa -->
+<div class="pantalla-match" id="pantallaMatch" role="dialog" aria-modal="true" aria-labelledby="pmTitulo" hidden>
+  <div class="pantalla-match__caja">
+    <div class="pantalla-match__cor" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-7.5-10.6A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.7c0 6-7.5 10.6-7.5 10.6z"/></svg>
+    </div>
+    <p class="pantalla-match__titulo" id="pmTitulo">És un <span class="junto">match! 🎉</span></p>
+    <p class="pantalla-match__texto">Tu i <strong id="pmNombre"></strong> us heu marcat mútuament.</p>
+    <button class="btn btn--luz" type="button" id="pmCerrar">Genial</button>
+  </div>
+</div>
+
+<div class="confeti" id="confeti" aria-hidden="true"></div>
+
+
+<!-- =================================================== MENÚ
+     Mismo menú que en index.html y reto.html. Si lo cambias aquí, cámbialo también allí. -->
+<nav class="nav" aria-label="Menú">
+  <a class="nav__item" href="index.html" data-seccion="inicio">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>
+    <span>Inici</span>
+  </a>
+  <a class="nav__item" href="index.html#info" data-seccion="info">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+    <span>Info</span>
+  </a>
+  <a class="nav__item" href="reto.html" data-seccion="reto">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2"/><circle cx="15" cy="15" r="1.2"/><circle cx="15" cy="9" r="1.2"/><circle cx="9" cy="15" r="1.2"/></svg>
+    <span>El meu repte</span>
+  </a>
+  <a class="nav__item" href="reto.html#subir" data-seccion="subir">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13.5" r="3.5"/></svg>
+    <span>Puja</span>
+  </a>
+  <a class="nav__item" href="#match" data-seccion="match">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.6A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.7c0 6-7.5 10.6-7.5 10.6z"/></svg>
+    <span>Match</span>
+  </a>
+</nav>
+
+</body>
+</html>
