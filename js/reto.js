@@ -1,16 +1,24 @@
 /* ===========================================================================
-   reto.js — Sorteo y revelación del reto personal (solo reto.html).
+   reto.js — Elección de dificultad, sorteo y revelación del reto personal
+   (solo reto.html).
 
    Cómo funciona:
-   1. Al entrar se busca el número guardado en localStorage.
-      - Si hay uno válido → ese es tu reto, siempre.
-      - Si no → se sortea uno y se GUARDA AL MOMENTO (antes de enseñarlo),
-        así recargar a mitad de la animación no permite volver a sortear.
-   2. Se guarda el NÚMERO (1, 2, 3...), no el texto. El texto se busca en
-      data.js cada vez, así si cambiáis el texto del reto 7, quien tenga el 7
-      ve el texto nuevo.
+   1. Al entrar se busca en localStorage el reto guardado: {dificultad, numero}.
+      - Si hay uno válido → ese es tu reto, siempre (sin botones ni ruleta si
+        ya lo viste).
+      - Si no → se enseñan los 3 botones de dificultad. Al elegir uno y
+        confirmar, se sortea un número 1..10 de esa lista y se GUARDA AL
+        MOMENTO (antes de la animación): recargar a mitad no permite volver a
+        elegir dificultad ni re-sortear.
+   2. Se guarda la DIFICULTAD y el NÚMERO, no el texto. El texto se busca en
+      data.js cada vez, así si cambiáis el texto del reto 7 de "medio", quien
+      lo tenga ve el texto nuevo.
    3. Una segunda clave ("revelado") recuerda si ya viste la animación;
       en visitas posteriores se muestra el resultado directamente.
+   4. Modo prueba oculto: abrir reto.html?reset borra el reto guardado.
+
+   Las claves llevan "-v2": las del sistema antiguo (un solo listado de
+   retos) se ignoran y la persona elige dificultad como si fuera nueva.
    =========================================================================== */
 (function () {
   'use strict';
@@ -21,50 +29,75 @@
   if (!F || !C || !A) return;
   var $ = C.$;
 
-  var CLAVE_RETO = 'fiesta2122:reto';
-  var CLAVE_REVELADO = 'fiesta2122:revelado';
-  var TOTAL = F.retos.length;
+  var CLAVE_RETO = 'fiesta2122:reto-v2';          // '{"dificultad":"medio","numero":7}'
+  var CLAVE_REVELADO = 'fiesta2122:revelado-v2';  // "1" tras ver la animación
+  var DIFICULTADES = ['facil', 'medio', 'dificil'];
+  var NOMBRES = F.nombresDificultad || { facil: 'Fàcil', medio: 'Mitjà', dificil: 'Difícil' };
   var DURACION_GIRO = 3600; // ms
 
   var sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* ---------- Modo prueba: ?reset ---------- */
+  // Borra el reto guardado y quita "?reset" de la dirección (replaceState no
+  // recarga), para que una recarga normal no lo vuelva a borrar.
+  if (/[?&]reset\b/.test(location.search)) {
+    A.borrar(CLAVE_RETO);
+    A.borrar(CLAVE_REVELADO);
+    history.replaceState(null, '', location.pathname + location.hash);
+  }
+
   /* ---------- Lógica (sin interfaz) ---------- */
 
-  function esValido(n) { return Number.isInteger(n) && n >= 1 && n <= TOTAL; }
+  function lista(dif) { return (F.retos && F.retos[dif]) || []; }
 
-  // Número aleatorio 1..TOTAL. crypto.getRandomValues da mejor aleatoriedad
+  function esValido(r) {
+    return !!r && DIFICULTADES.indexOf(r.dificultad) >= 0 &&
+      Number.isInteger(r.numero) && r.numero >= 1 && r.numero <= lista(r.dificultad).length;
+  }
+
+  function leerGuardado() {
+    try {
+      var r = JSON.parse(A.leer(CLAVE_RETO));
+      return esValido(r) ? r : null;
+    } catch (e) {
+      return null;   // JSON roto o vacío → como si no hubiera nada
+    }
+  }
+
+  // Número aleatorio 1..total. crypto.getRandomValues da mejor aleatoriedad
   // que Math.random; si no existe (navegadores muy viejos) usamos Math.random.
-  function aleatorio() {
+  function aleatorio(total) {
     if (window.crypto && window.crypto.getRandomValues) {
       var a = new Uint32Array(1);
       window.crypto.getRandomValues(a);
-      return (a[0] % TOTAL) + 1;
+      return (a[0] % total) + 1;
     }
-    return Math.floor(Math.random() * TOTAL) + 1;
-  }
-
-  function obtenerReto() {
-    var guardado = parseInt(A.leer(CLAVE_RETO), 10);
-    if (esValido(guardado)) return guardado;
-
-    var n = aleatorio();
-    A.guardar(CLAVE_RETO, n);   // si falla (sin localStorage) seguimos igual
-    return n;
+    return Math.floor(Math.random() * total) + 1;
   }
 
   // 7 → "07" (mismo formato que el nombre de archivo Reto07)
   function dosCifras(n) { return String(n).padStart(2, '0'); }
 
-  var numero = obtenerReto();
-
-  // Disponible para upload.js. "revelado" indica si la persona ya ha visto
-  // su reto (para no destripárselo en el formulario antes de la animación).
+  // Disponible para upload.js. Empieza vacío (sin dificultad) y se rellena
+  // al elegir. "revelado" indica si la persona ya ha visto su reto (para no
+  // destripárselo en el formulario antes de la animación).
   window.MiReto = {
-    numero: numero,
-    etiqueta: dosCifras(numero),
-    texto: F.retos[numero - 1],
+    dificultad: null,
+    nombreDificultad: '',
+    numero: null,
+    etiqueta: '',
+    texto: '',
     revelado: false
   };
+
+  function asignar(r) {
+    var R = window.MiReto;
+    R.dificultad = r.dificultad;
+    R.nombreDificultad = NOMBRES[r.dificultad];
+    R.numero = r.numero;
+    R.etiqueta = dosCifras(r.numero);
+    R.texto = lista(r.dificultad)[r.numero - 1];
+  }
 
   function marcarRevelado() {
     window.MiReto.revelado = true;
@@ -74,14 +107,31 @@
 
   /* ---------- Interfaz ---------- */
 
+  var eleccion = $('eleccion');
+  var dialogo = $('dialogoDif');
   var maquina = $('maquina');
   var tira = $('tira');
   var btn = $('btnDescubrir');
   var resultado = $('resultado');
 
+  // Etiqueta de color con la dificultad (verde/amarillo/rojo en el CSS)
+  function pintarChip(nodo, dif) {
+    nodo.textContent = NOMBRES[dif];
+    nodo.className = 'chip-dif chip-dif--' + dif;
+    nodo.hidden = false;
+  }
+
+  function mostrarMaquina() {
+    eleccion.hidden = true;
+    maquina.hidden = false;
+    pintarChip($('maquinaDif'), window.MiReto.dificultad);
+  }
+
   function pintarResultado(animar) {
-    $('resKicker').textContent = 'Repte núm. ' + dosCifras(numero);
-    $('resTexto').textContent = F.retos[numero - 1];
+    var R = window.MiReto;
+    pintarChip($('resDif'), R.dificultad);
+    $('resKicker').textContent = 'Repte núm. ' + R.etiqueta;
+    $('resTexto').textContent = R.texto;
     btn.hidden = true;
     resultado.hidden = false;
     if (animar) resultado.classList.add('resultado--entra');
@@ -89,10 +139,53 @@
 
   // Deja el rodillo mostrando solo el número final (sin animación)
   function mostrarNumeroFijo() {
-    tira.replaceChildren(C.el('span', 'rodillo__num', dosCifras(numero)));
+    tira.replaceChildren(C.el('span', 'rodillo__num', window.MiReto.etiqueta));
+    // sin transición: si no, la tira "volvería" despacio desde abajo (3,6 s)
+    // y el rodillo se vería vacío justo al terminar el giro
+    tira.style.transitionDuration = '0ms';
     tira.style.transform = 'none';
     maquina.classList.add('maquina--revelada');
   }
+
+  /* --- Paso 1: elegir dificultad y confirmar --- */
+
+  var pendiente = null;   // dificultad que se está confirmando
+
+  function pedirConfirmacion(dif) {
+    pendiente = dif;
+    $('dialogoTexto').textContent =
+      'Has triat «' + NOMBRES[dif] + '». No podràs canviar la dificultat.';
+
+    // <dialog> nativo: accesible (foco atrapado, Esc cierra). Si el navegador
+    // es antiguo y no lo tiene, usamos confirm() del sistema.
+    if (dialogo && typeof dialogo.showModal === 'function') {
+      dialogo.returnValue = '';
+      dialogo.showModal();
+    } else if (window.confirm('Segur? Has triat «' + NOMBRES[dif] + '». No podràs canviar la dificultat.')) {
+      elegir(dif);
+    }
+  }
+
+  // <form method="dialog">: al pulsar un botón, el diálogo se cierra solo
+  // y returnValue vale el "value" del botón ("si" / "no"; Esc → "").
+  if (dialogo) {
+    dialogo.addEventListener('close', function () {
+      if (dialogo.returnValue === 'si' && pendiente) elegir(pendiente);
+      pendiente = null;
+    });
+  }
+
+  function elegir(dif) {
+    if (leerGuardado()) return;   // por si acaso: nunca se re-sortea
+    var r = { dificultad: dif, numero: aleatorio(lista(dif).length) };
+    A.guardar(CLAVE_RETO, JSON.stringify(r));   // ANTES de la animación
+    asignar(r);
+    mostrarMaquina();
+    btn.hidden = true;   // la ruleta arranca sola tras confirmar
+    girar();
+  }
+
+  /* --- Paso 2: ruleta --- */
 
   // Tragaperras: llenamos la tira con varias vueltas de números en orden
   // aleatorio y terminamos en el nuestro. Luego desplazamos la tira hacia
@@ -102,13 +195,16 @@
 
     if (sinMovimiento) { revelar(); return; }
 
+    var R = window.MiReto;
+    var total = lista(R.dificultad).length;
     var nums = ['?'];
     for (var vuelta = 0; vuelta < 3; vuelta++) {
-      var orden = F.retos.map(function (_, i) { return i + 1; });
+      var orden = [];
+      for (var i = 1; i <= total; i++) orden.push(i);
       orden.sort(function () { return Math.random() - .5; });
       nums = nums.concat(orden);
     }
-    nums.push(numero);
+    nums.push(R.numero);
 
     tira.replaceChildren();
     nums.forEach(function (n) {
@@ -176,13 +272,31 @@
 
   if (!A.disponible) $('avisoAlmacen').hidden = false;
 
-  if (A.leer(CLAVE_REVELADO) === '1') {
+  // Nombres de los botones desde data.js
+  eleccion.querySelectorAll('[data-dificultad]').forEach(function (b) {
+    var dif = b.getAttribute('data-dificultad');
+    b.querySelector('.btn-dif__nombre').textContent = NOMBRES[dif];
+    b.addEventListener('click', function () { pedirConfirmacion(dif); });
+  });
+
+  var guardado = leerGuardado();
+
+  if (guardado && A.leer(CLAVE_REVELADO) === '1') {
     // Visita posterior: directamente el resultado
+    asignar(guardado);
+    mostrarMaquina();
     mostrarNumeroFijo();
     pintarResultado(false);
     marcarRevelado();
-  } else {
+  } else if (guardado) {
+    // Ya eligió (y se sorteó) pero cerró antes de ver la animación:
+    // misma dificultad y mismo número, solo falta girar.
+    asignar(guardado);
+    mostrarMaquina();
     btn.addEventListener('click', girar);
+  } else {
+    // Primera vez: elegir dificultad
+    eleccion.hidden = false;
   }
 
   C.irAlAncla();

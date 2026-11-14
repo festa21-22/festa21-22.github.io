@@ -84,7 +84,9 @@
 
   // El número solo se enseña cuando ya se ha revelado arriba con la animación
   function pintarReto() {
-    $('campoReto').textContent = R.revelado ? 'Repte núm. ' + R.etiqueta : 'Primer descobreix-lo a dalt ↑';
+    $('campoReto').textContent = R.revelado
+      ? R.nombreDificultad + ' · Repte núm. ' + R.etiqueta
+      : 'Primer descobreix-lo a dalt ↑';
     if (R.revelado) mostrarError($('errorReto'), '');
   }
   pintarReto();
@@ -187,7 +189,7 @@
       mostrarError($('errorNombre'), '');
     }
     if (!R.revelado) {
-      mostrarError($('errorReto'), 'Primer descobreix el teu repte amb el botó de dalt.');
+      mostrarError($('errorReto'), 'Primer tria la dificultat i descobreix el teu repte a dalt.');
       ok = false;
     }
     if (!archivo) {
@@ -215,6 +217,7 @@
         var cuerpo = JSON.stringify({
           clave: cfg.clave || '',
           nombre: nombre,
+          dificultad: R.dificultad,   // "facil" | "medio" | "dificil"
           reto: R.numero,
           nombreArchivo: f.name,
           tipo: f.type || '',
@@ -286,7 +289,9 @@
           clearInterval(t);
           fase('Desant a Drive…', null);
           setTimeout(function () {
-            resolve({ ok: true, archivo: 'Prova_Reto' + R.etiqueta + '_demo.jpg' });
+            // Mismo formato que Code.gs (sin acentos: Facil / Mitja / Dificil)
+            var dif = { facil: 'Facil', medio: 'Mitja', dificil: 'Dificil' }[R.dificultad];
+            resolve({ ok: true, archivo: 'Prova_' + dif + '_Reto' + R.etiqueta + '_demo.jpg' });
           }, 900);
         } else {
           fase('Pujant… ' + Math.round(pct) + '%', Math.round(pct));

@@ -36,9 +36,10 @@ y configuración de la subida. No hace falta tocar nada más.
 Reglas importantes:
 
 - **Fechas** en formato `"2026-11-21T17:00:00+01:00"` (el `+01:00` es la hora de invierno de España).
-- **Retos:** a cada persona se le guarda el **número** de su reto, no el texto.
-  Puedes cambiar los textos cuando quieras, pero **no reordenes ni borres retos**
-  una vez repartidos; para añadir, al final de la lista.
+- **Retos:** hay 3 listas (`facil`, `medio`, `dificil`) de 10 retos. Cada persona
+  elige una dificultad (definitiva) y se le guarda la **dificultad y el número**
+  de su reto, no el texto. Puedes cambiar los textos cuando quieras, pero
+  **no reordenes ni borres retos** una vez repartidos; para añadir, al final.
 - **Subida:** `scriptUrl: "demo"` simula la subida (sale un aviso azul).
   **Antes de la fiesta** pon la URL real del Apps Script siguiendo
   [`apps-script/GUIA.md`](apps-script/GUIA.md).
@@ -67,8 +68,10 @@ python3 -m http.server 8080
 **Probar como en el móvil:** en Chrome, F12 → icono de móvil (Ctrl+Shift+M).
 Para probar en un móvil de verdad, lo más fácil es publicarlo en GitHub Pages.
 
-**Volver a sortear el reto (solo para probar):** F12 → Consola →
-`localStorage.clear()` y recarga. Desde la web no hay forma de hacerlo, a propósito.
+**Volver a sortear el reto (solo para probar):** abre `reto.html?reset`
+(p. ej. <http://localhost:8080/reto.html?reset>): borra el reto guardado y
+vuelven a salir los botones de dificultad. Desde la interfaz no hay botón para
+hacerlo, a propósito.
 
 ## Publicar en GitHub Pages
 

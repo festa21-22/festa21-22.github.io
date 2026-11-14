@@ -75,7 +75,8 @@ guardar los archivos** (ocupan espacio de esa cuenta: 15 GB gratis).
      segundosVideoRecomendados: 30
    }
    ```
-3. Abre `reto.html`, sube una foto de prueba y comprueba que aparece en la carpeta.
+3. Abre `reto.html`, sube una foto de prueba y comprueba que aparece en la carpeta
+   con un nombre como `Nombre_Dificil_Reto07_2026-11-21_23-15-42.jpg`.
    El aviso azul de “Mode de prova” debe haber desaparecido.
 
 ## 6. Si cambias `Code.gs` más adelante
@@ -96,6 +97,7 @@ distinta y habría que cambiarla en `data.js`.)
 | “Hi ha hagut un error en desar l'arxiu” | `CARPETA_ID` mal o sin permisos | Ejecuta `probarConfiguracion` y mira **Ejecuciones** en el menú izquierdo |
 | “El servidor ha respost de manera inesperada” | El script ha lanzado un error no controlado o Google ha devuelto una página HTML | Mira **Ejecuciones** para ver el error |
 | Cambié `Code.gs` y no hace caso | No se publicó versión nueva | Paso 6 |
+| “Falten dades al formulari” al subir | `Code.gs` y la web no coinciden (p. ej. la web envía `dificultad` y el script desplegado es antiguo, o al revés) | Copia el `Code.gs` actual y publica versión nueva (paso 6) |
 
 ## Límites a tener en cuenta
 

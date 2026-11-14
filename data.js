@@ -122,18 +122,69 @@ window.FIESTA = {
   ],
 
 
-  /* ---------- RETOS ----------
-     Cada persona recibe UNO al azar y se guarda su NÚMERO (posición en esta
-     lista, empezando en 1). Por eso:
-       ✅ Puedes cambiar el TEXTO de un reto cuando quieras.
+  /* ---------- RETOS (3 dificultades) ----------
+     Cada persona elige UNA dificultad (definitiva) y la ruleta le sortea un
+     número del 1 al 10 dentro de esa lista. En su móvil se guarda la
+     DIFICULTAD y el NÚMERO (posición en la lista, empezando en 1), nunca el
+     texto. Por eso:
+       ✅ Puedes cambiar el TEXTO de un reto cuando quieras: quien tenga ese
+          número verá el texto nuevo.
        ⚠️  NO reordenes ni borres retos una vez repartidos: cambiarías el
-           reto de quien ya lo tenga. Para añadir, añade al FINAL.          */
-  retos: [
-    "Repte 1",  "Repte 2",  "Repte 3",  "Repte 4",  "Repte 5",
-    "Repte 6",  "Repte 7",  "Repte 8",  "Repte 9",  "Repte 10",
-    "Repte 11", "Repte 12", "Repte 13", "Repte 14", "Repte 15",
-    "Repte 16", "Repte 17", "Repte 18", "Repte 19", "Repte 20"
-  ],
+           reto de quien ya lo tenga.
+       ⚠️  Cada lista tiene 10 retos. Si añades más, añádelos al FINAL
+           (la ruleta usa el tamaño de cada lista).
+     Las claves facil / medio / dificil NO se cambian (se usan en el código
+     y en el nombre del archivo en Drive). El nombre visible está en
+     "nombresDificultad".                                                    */
+  nombresDificultad: {
+    facil:   "Fàcil",
+    medio:   "Mitjà",
+    dificil: "Difícil"
+  },
+
+  retos: {
+    // 🟢 FÀCIL
+    facil: [
+      "Repte fàcil 1",    // 01
+      "Repte fàcil 2",    // 02
+      "Repte fàcil 3",    // 03
+      "Repte fàcil 4",    // 04
+      "Repte fàcil 5",    // 05
+      "Repte fàcil 6",    // 06
+      "Repte fàcil 7",    // 07
+      "Repte fàcil 8",    // 08
+      "Repte fàcil 9",    // 09
+      "Repte fàcil 10"    // 10
+    ],
+
+    // 🟡 MITJÀ
+    medio: [
+      "Repte mitjà 1",    // 01
+      "Repte mitjà 2",    // 02
+      "Repte mitjà 3",    // 03
+      "Repte mitjà 4",    // 04
+      "Repte mitjà 5",    // 05
+      "Repte mitjà 6",    // 06
+      "Repte mitjà 7",    // 07
+      "Repte mitjà 8",    // 08
+      "Repte mitjà 9",    // 09
+      "Repte mitjà 10"    // 10
+    ],
+
+    // 🔴 DIFÍCIL
+    dificil: [
+      "Repte difícil 1",  // 01
+      "Repte difícil 2",  // 02
+      "Repte difícil 3",  // 03
+      "Repte difícil 4",  // 04
+      "Repte difícil 5",  // 05
+      "Repte difícil 6",  // 06
+      "Repte difícil 7",  // 07
+      "Repte difícil 8",  // 08
+      "Repte difícil 9",  // 09
+      "Repte difícil 10"  // 10
+    ]
+  },
 
 
   /* ---------- SUBIDA DE PRUEBAS (Google Apps Script) ----------

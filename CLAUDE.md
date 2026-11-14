@@ -29,13 +29,13 @@ archivos a Google Drive con **Google Apps Script**.
 
 | Archivo | Qué hace |
 |---|---|
-| `index.html` | Portada (casa SVG, cuenta atrás), información, agenda, FAQ |
-| `reto.html` | Reto personal (tragaperras) + formulario de subida |
+| `index.html` | Portada (casa SVG, cuenta atrás), información, agenda (solo momentos con hora), activitats (tarjetas sin hora), FAQ |
+| `reto.html` | Elección de dificultad + reto personal (tragaperras) + formulario de subida |
 | `data.js` | Datos editables. Cargar SIEMPRE primero |
 | `js/comun.js` | `window.Comun`: utilidades (`$`, `el`, formato de fechas `ca-ES` en `Europe/Madrid`), guirnaldas, estrellas, `IntersectionObserver` (aparición y menú activo), `irAlAncla()` |
 | `js/info.js` | Solo `index.html` |
-| `js/storage.js` | `window.Almacen`: `leer`/`guardar`/`disponible`, todo en try/catch |
-| `js/reto.js` | Sorteo + animación. Expone `window.MiReto` y emite el evento `reto:revelado` |
+| `js/storage.js` | `window.Almacen`: `leer`/`guardar`/`borrar`/`disponible`, todo en try/catch |
+| `js/reto.js` | Dificultad + confirmación + sorteo + animación. Expone `window.MiReto` (`dificultad`, `nombreDificultad`, `numero`, `etiqueta`, `texto`, `revelado`) y emite el evento `reto:revelado` |
 | `js/upload.js` | Formulario, validación, base64, XHR con progreso |
 | `apps-script/Code.gs` | Backend (se copia a mano en script.google.com, NO se despliega desde aquí) |
 | `apps-script/GUIA.md` | Pasos para desplegar el backend |
@@ -45,22 +45,33 @@ Orden de scripts (todos con `defer`): `data.js` → `storage.js` → `comun.js` 
 
 ## Lógica que no hay que romper
 
-- **Reto:** se guarda en localStorage el **número** (`fiesta2122:reto`, 1-based),
-  nunca el texto. Se guarda **antes** de la animación (recargar no re-sortea).
-  `fiesta2122:revelado = "1"` tras ver la animación. **No debe existir forma de
-  re-sortear desde la interfaz.** El orden de `FIESTA.retos` no se cambia una
-  vez repartidos.
+- **Reto con 3 dificultades:** `FIESTA.retos = {facil, medio, dificil}`, 10 retos
+  cada una (nombres visibles en `FIESTA.nombresDificultad`). Primera visita:
+  3 botones → confirmación (`<dialog>`, fallback `confirm()`) → ruleta 1..10 de
+  esa lista → número + texto + etiqueta de color (verde/amarillo/rojo).
+  La elección es **definitiva**: se guarda en localStorage
+  `fiesta2122:reto-v2 = '{"dificultad":"medio","numero":7}'` (número 1-based,
+  **nunca el texto**), **antes** de la animación (recargar no re-sortea ni deja
+  cambiar de dificultad). `fiesta2122:revelado-v2 = "1"` tras ver la animación;
+  después se muestra el resultado directamente, sin botones ni ruleta.
+  Las claves antiguas (`fiesta2122:reto`/`revelado`) se ignoran.
+  **No debe existir forma de re-sortear desde la interfaz.** Única excepción,
+  oculta y solo para pruebas: abrir `reto.html?reset` borra el reto guardado
+  (y quita `?reset` de la URL con `history.replaceState`). Ni el orden de cada
+  lista ni las claves `facil/medio/dificil` se cambian una vez repartidos.
 - Todo acceso a localStorage pasa por `Almacen` (try/catch). Si no hay
   almacenamiento, la web sigue funcionando y avisa.
 - El formulario no muestra el número de reto hasta que `MiReto.revelado` es true.
 - **Subida:** POST con `Content-Type: text/plain;charset=utf-8` (evita el
   preflight CORS que Apps Script no soporta), cuerpo JSON
-  `{clave, nombre, reto, nombreArchivo, tipo, datos(base64)}`, respuesta
+  `{clave, nombre, dificultad, reto, nombreArchivo, tipo, datos(base64)}`
+  (`dificultad` = `facil|medio|dificil`; otra cosa → error `datos`), respuesta
   `{ok, archivo}` o `{ok:false, error:"clave|datos|tipo|grande|servidor"}`.
   Usa XHR (no fetch) por `upload.onprogress`. Límite 25 MB (base64 +33 %; Apps
   Script falla hacia 50 MB). Si cambias el contrato, cambia `Code.gs` y `upload.js` a la vez.
 - `scriptUrl: "demo"` simula la subida. No publicar la versión final así.
-- Archivos en Drive: `Nombre_Reto07_yyyy-MM-dd_HH-mm-ss.ext`.
+- Archivos en Drive: `Nombre_Dificil_Reto07_yyyy-MM-dd_HH-mm-ss.ext`
+  (dificultad sin acentos: `Facil`, `Mitja`, `Dificil`).
 
 ## Estilo de código
 
@@ -83,7 +94,7 @@ Orden de scripts (todos con `defer`): `data.js` → `storage.js` → `comun.js` 
   → http://localhost:8080 (en Claude Code: `.claude/launch.json`, nombre `web-fiesta`).
   Mac/Linux: `python3 -m http.server 8080`.
 - Probar siempre en vista móvil (375×812) y comprobar la consola sin errores.
-- Re-sortear para pruebas: `localStorage.clear()` en la consola.
+- Re-sortear para pruebas: abrir `reto.html?reset` (o `localStorage.clear()` en la consola).
 
 ## Git
 

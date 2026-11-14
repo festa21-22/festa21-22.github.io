@@ -17,6 +17,11 @@
   --luz-3: #ff7a5c;
   --luz-blanca: #fff1c9;
 
+  /* dificultad de los retos (semáforo) */
+  --facil: #7ee08f;
+  --medio: #ffd84d;
+  --dificil: #ff6b5c;
+
   /* casa */
   --muro: #3b3f5c;
   --muro-2: #31344e;
@@ -398,6 +403,68 @@ svg { display: block; }
 .cabecera__texto { margin-top: 8px; max-width: 30ch; color: var(--texto-2); }
 
 .seccion--reto { padding-top: 28px; }
+
+/* elección de dificultad */
+.eleccion {
+  padding: 24px 20px;
+  border-radius: 28px;
+  text-align: center;
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+}
+.eleccion__titulo { font-family: var(--f-titulo); font-weight: 800; font-size: 1.45rem; line-height: 1.2; }
+.eleccion__nota { margin-top: 4px; font-size: .9rem; color: var(--texto-2); }
+.eleccion__botones { display: grid; gap: 10px; margin-top: 18px; }
+
+/* cada botón usa su color con la variable --c */
+.btn-dif {
+  --c: var(--luz);
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  min-height: 56px; padding: 12px 20px;
+  border-radius: 16px;
+  /* primera línea = alternativa para móviles viejos sin color-mix() */
+  border: 1.5px solid var(--c); border-color: color-mix(in srgb, var(--c) 55%, transparent);
+  background: rgba(255, 255, 255, .05); background: color-mix(in srgb, var(--c) 12%, transparent);
+  color: var(--texto); font: 700 1.1rem/1 var(--f-texto);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform .2s var(--ease), background .2s var(--ease);
+}
+.btn-dif:active { transform: scale(.97); }
+@media (hover: hover) { .btn-dif:hover { background: color-mix(in srgb, var(--c) 22%, transparent); } }
+.btn-dif:focus-visible { outline: 2px solid var(--c); outline-offset: 3px; }
+.btn-dif__punto { width: 12px; height: 12px; border-radius: 50%; background: var(--c); box-shadow: 0 0 10px var(--c); }
+.btn-dif--facil { --c: var(--facil); }
+.btn-dif--medio { --c: var(--medio); }
+.btn-dif--dificil { --c: var(--dificil); }
+
+/* etiqueta de color con la dificultad (máquina y resultado) */
+.chip-dif {
+  --c: var(--luz);
+  display: inline-block; margin-bottom: 10px; padding: 5px 12px;
+  border-radius: 999px; border: 1px solid var(--c);
+  background: rgba(255, 255, 255, .06); background: color-mix(in srgb, var(--c) 16%, transparent);
+  color: var(--c); font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+}
+.chip-dif--facil { --c: var(--facil); }
+.chip-dif--medio { --c: var(--medio); }
+.chip-dif--dificil { --c: var(--dificil); }
+.maquina .chip-dif { margin-bottom: 8px; }
+
+/* diálogo de confirmación */
+.dialogo {
+  width: min(100% - 2 * var(--gutter), 360px);
+  padding: 24px 20px 20px;
+  border-radius: 22px; border: 1px solid rgba(255, 198, 92, .35);
+  background: var(--noche-2); color: var(--texto);
+  text-align: center;
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .8);
+}
+.dialogo[open] { animation: entrar .3s var(--ease); }
+.dialogo::backdrop { background: rgba(5, 6, 18, .7); backdrop-filter: blur(3px); }
+.dialogo__titulo { font-family: var(--f-titulo); font-weight: 800; font-size: 1.6rem; }
+.dialogo__texto { margin-top: 6px; color: var(--texto-2); }
+.dialogo__botones { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+.dialogo__botones .btn { margin: 0; padding-left: 10px; padding-right: 10px; }
 
 /* máquina tragaperras */
 .maquina {

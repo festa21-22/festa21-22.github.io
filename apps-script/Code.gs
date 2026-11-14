@@ -3,7 +3,7 @@
 
    Recibe un POST con un JSON (enviado como text/plain para evitar el
    preflight CORS) y guarda el archivo en una carpeta PRIVADA de Drive:
-       Nombre_Reto07_2026-11-21_23-15-42.jpg
+       Nombre_Dificil_Reto07_2026-11-21_23-15-42.jpg
 
    El script se ejecuta con TU cuenta ("Ejecutar como: yo"), así que puede
    escribir en tu carpeta aunque quien sube no tenga acceso a ella. Nadie más
@@ -32,6 +32,9 @@ const EXTENSIONES = {
   video: ['mp4', 'mov', 'webm', '3gp', 'm4v', 'mkv'],
 };
 
+// Dificultad que envía la web → texto en el nombre del archivo (sin acentos)
+const DIFICULTADES = { facil: 'Facil', medio: 'Mitja', dificil: 'Dificil' };
+
 // Si el archivo no trae extensión, la deducimos del tipo MIME
 const EXT_POR_TIPO = {
   'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp',
@@ -50,7 +53,8 @@ function doPost(e) {
     if (p.clave !== CONFIG.CLAVE) return responder({ ok: false, error: 'clave' });
 
     const reto = parseInt(p.reto, 10);
-    if (!p.datos || !reto || reto < 1 || reto > 999) return responder({ ok: false, error: 'datos' });
+    const dificultad = DIFICULTADES[p.dificultad];
+    if (!p.datos || !dificultad || !reto || reto < 1 || reto > 999) return responder({ ok: false, error: 'datos' });
 
     const ext = extensionValida(p.nombreArchivo, p.tipo);
     if (!ext) return responder({ ok: false, error: 'tipo' });
@@ -61,7 +65,7 @@ function doPost(e) {
     if (bytes.length > CONFIG.MAX_MB * 1024 * 1024) return responder({ ok: false, error: 'grande' });
 
     const fecha = Utilities.formatDate(new Date(), CONFIG.ZONA, 'yyyy-MM-dd_HH-mm-ss');
-    const nombre = limpiarNombre(p.nombre) + '_Reto' + String(reto).padStart(2, '0') + '_' + fecha + '.' + ext;
+    const nombre = limpiarNombre(p.nombre) + '_' + dificultad + '_Reto' + String(reto).padStart(2, '0') + '_' + fecha + '.' + ext;
 
     const tipoMime = p.tipo || mimeDeExtension(ext);
     const blob = Utilities.newBlob(bytes, tipoMime, nombre);

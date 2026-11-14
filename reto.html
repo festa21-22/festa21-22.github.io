@@ -48,8 +48,43 @@
   <section id="reto" class="seccion seccion--reto" aria-labelledby="h-reto">
     <h2 class="sr-only" id="h-reto">El teu repte personal</h2>
 
-    <!-- Máquina tragaperras: el número gira y se para en tu reto -->
-    <div class="maquina" id="maquina">
+    <!-- Paso 1 (solo la primera vez): elegir dificultad. Lo muestra reto.js.
+         Los nombres de los botones se leen de FIESTA.nombresDificultad. -->
+    <div class="eleccion" id="eleccion" hidden>
+      <p class="eleccion__titulo">Tria la dificultat del teu repte</p>
+      <p class="eleccion__nota">Només pots triar una vegada.</p>
+      <div class="eleccion__botones">
+        <button class="btn-dif btn-dif--facil" type="button" data-dificultad="facil">
+          <span class="btn-dif__punto" aria-hidden="true"></span>
+          <span class="btn-dif__nombre">Fàcil</span>
+        </button>
+        <button class="btn-dif btn-dif--medio" type="button" data-dificultad="medio">
+          <span class="btn-dif__punto" aria-hidden="true"></span>
+          <span class="btn-dif__nombre">Mitjà</span>
+        </button>
+        <button class="btn-dif btn-dif--dificil" type="button" data-dificultad="dificil">
+          <span class="btn-dif__punto" aria-hidden="true"></span>
+          <span class="btn-dif__nombre">Difícil</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Confirmación. <dialog> nativo + <form method="dialog">: el botón
+         pulsado cierra el diálogo y deja su value en dialog.returnValue -->
+    <dialog class="dialogo" id="dialogoDif" aria-labelledby="dialogoTitulo" aria-describedby="dialogoTexto">
+      <form method="dialog">
+        <p class="dialogo__titulo" id="dialogoTitulo">Segur?</p>
+        <p class="dialogo__texto" id="dialogoTexto"></p>
+        <div class="dialogo__botones">
+          <button class="btn btn--secundario" value="no">Cancel·la</button>
+          <button class="btn btn--luz" value="si">Sí, endavant</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- Paso 2: máquina tragaperras, el número gira y se para en tu reto -->
+    <div class="maquina" id="maquina" hidden>
+      <p class="chip-dif" id="maquinaDif" hidden></p>
       <p class="maquina__titulo">El teu número de repte</p>
       <div class="rodillo" aria-hidden="true">
         <div class="rodillo__tira" id="tira"><span class="rodillo__num">?</span></div>
@@ -59,6 +94,7 @@
 
     <!-- Resultado (se muestra al terminar la animación o en visitas posteriores) -->
     <div class="resultado" id="resultado" hidden aria-live="polite">
+      <p class="chip-dif" id="resDif" hidden></p>
       <p class="resultado__kicker" id="resKicker">Repte núm. 07</p>
       <p class="resultado__texto" id="resTexto"></p>
       <p class="resultado__captura">

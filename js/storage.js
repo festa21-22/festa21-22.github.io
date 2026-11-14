@@ -32,6 +32,10 @@
     guardar: function (clave, valor) {
       try { window.localStorage.setItem(clave, String(valor)); return true; }
       catch (e) { return false; }
+    },
+
+    borrar: function (clave) {
+      try { window.localStorage.removeItem(clave); } catch (e) { /* nada */ }
     }
   };
 })();
