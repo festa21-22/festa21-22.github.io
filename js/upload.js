@@ -10,7 +10,10 @@
         - Con "application/json" el navegador haría antes una petición
           OPTIONS (preflight CORS) y Apps Script no sabe responderla → error.
           "text/plain" es una "petición simple": no hay preflight.
-        - XHR (y no fetch) porque XHR da progreso de SUBIDA (upload.onprogress).
+        - SIN progreso de subida: escuchar xhr.upload.onprogress también
+          provoca preflight (regla de CORS poco conocida) y rompería la
+          subida. La barra es "indeterminada" (rayas animadas).
+        - XHR por el timeout (xhr.timeout) y los errores de red claros.
    4. Apps Script responde con un redirect 302 a script.googleusercontent.com,
       que XHR sigue solo; esa respuesta sí trae cabeceras CORS y la podemos leer.
 
@@ -262,12 +265,11 @@
       xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
       xhr.timeout = 10 * 60 * 1000; // 10 min, por si la conexión es lenta
 
-      xhr.upload.onprogress = function (e) {
-        if (!e.lengthComputable) return;
-        var pct = Math.round(e.loaded / e.total * 100);
-        if (pct < 100) fase('Pujant… ' + pct + '%', pct);
-        else fase('Desant a Drive…', null);   // subido; ahora el servidor lo guarda
-      };
+      // ⚠️ NO añadir xhr.upload.onprogress (ni ningún listener en xhr.upload):
+      // con un listener de subida el navegador hace SIEMPRE preflight CORS,
+      // aunque sea text/plain, y Apps Script no lo responde → la subida falla.
+      // Por eso la barra es indeterminada y no hay %.
+      fase('Pujant ' + mb(cuerpo.length) + '… pot trigar una mica', null);
 
       xhr.onload = function () {
         try { resolve(JSON.parse(xhr.responseText)); }
@@ -280,23 +282,15 @@
   }
 
   // Simulación para probar la interfaz sin backend (scriptUrl: "demo")
-  function simular() {
+  // Igual que la real: barra indeterminada (sin %), unos segundos de espera.
+  function simular(bytes) {
+    fase('Pujant ' + mb(bytes) + '… pot trigar una mica', null);
     return new Promise(function (resolve) {
-      var pct = 0;
-      var t = setInterval(function () {
-        pct += 4 + Math.random() * 8;
-        if (pct >= 100) {
-          clearInterval(t);
-          fase('Desant a Drive…', null);
-          setTimeout(function () {
-            // Mismo formato que Code.gs (sin acentos: Facil / Mitja / Dificil)
-            var dif = { facil: 'Facil', medio: 'Mitja', dificil: 'Dificil' }[R.dificultad];
-            resolve({ ok: true, archivo: 'Prova_' + dif + '_Reto' + R.etiqueta + '_demo.jpg' });
-          }, 900);
-        } else {
-          fase('Pujant… ' + Math.round(pct) + '%', Math.round(pct));
-        }
-      }, 120);
+      setTimeout(function () {
+        // Mismo formato que Code.gs (sin acentos: Facil / Mitja / Dificil)
+        var dif = { facil: 'Facil', medio: 'Mitja', dificil: 'Dificil' }[R.dificultad];
+        resolve({ ok: true, archivo: 'Prova_' + dif + '_Reto' + R.etiqueta + '_demo.jpg' });
+      }, 2500);
     });
   }
 

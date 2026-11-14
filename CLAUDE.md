@@ -67,7 +67,9 @@ Orden de scripts (todos con `defer`): `data.js` → `storage.js` → `comun.js` 
   `{clave, nombre, dificultad, reto, nombreArchivo, tipo, datos(base64)}`
   (`dificultad` = `facil|medio|dificil`; otra cosa → error `datos`), respuesta
   `{ok, archivo}` o `{ok:false, error:"clave|datos|tipo|grande|servidor"}`.
-  Usa XHR (no fetch) por `upload.onprogress`. Límite 25 MB (base64 +33 %; Apps
+  **Nunca añadir listeners a `xhr.upload`** (p. ej. `upload.onprogress`): fuerzan
+  preflight CORS aunque sea `text/plain` y la subida a Apps Script falla
+  (comprobado). Por eso la barra de progreso es indeterminada. Límite 25 MB (base64 +33 %; Apps
   Script falla hacia 50 MB). Si cambias el contrato, cambia `Code.gs` y `upload.js` a la vez.
 - `scriptUrl: "demo"` simula la subida. No publicar la versión final así.
 - Archivos en Drive: `Nombre_Dificil_Reto07_yyyy-MM-dd_HH-mm-ss.ext`

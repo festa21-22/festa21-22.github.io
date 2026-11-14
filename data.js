@@ -203,8 +203,8 @@ window.FIESTA = {
      ⚠️  maxMB: no subas de 25. El archivo viaja en base64 (+33 %) y Apps
          Script empieza a fallar con peticiones de unos 50 MB.            */
   subida: {
-    scriptUrl: "demo",
-    clave: "",              // la misma clave que pongas en CONFIG.CLAVE de Code.gs
+    scriptUrl: "https://script.google.com/macros/s/AKfycbxTOIWzhmF1BFrRkyNneER2VqngtOqhzNN5qCutxD4jW6kCY1k1-3IUGcEQkQHoRhm_BA/exec",
+    clave: "daniputovago",  // la misma clave que pongas en CONFIG.CLAVE de Code.gs
     maxMB: 25,              // tamaño máximo por archivo (MB)
     segundosVideoRecomendados: 30
   }
