@@ -35,7 +35,7 @@ archivos a Google Drive con **Google Apps Script**.
 | `js/comun.js` | `window.Comun`: utilidades (`$`, `el`, formato de fechas `ca-ES` en `Europe/Madrid`), guirnaldas, estrellas, `IntersectionObserver` (aparición y menú activo), `irAlAncla()` |
 | `js/info.js` | Solo `index.html` |
 | `js/storage.js` | `window.Almacen`: `leer`/`guardar`/`borrar`/`disponible`, todo en try/catch |
-| `js/reto.js` | Dificultad + confirmación + sorteo + animación. Expone `window.MiReto` (`dificultad`, `nombreDificultad`, `numero`, `etiqueta`, `texto`, `revelado`) y emite el evento `reto:revelado` |
+| `js/reto.js` | Dificultad + confirmación + sorteo + animación + cambio único de reto. Expone `window.MiReto` (`dificultad`, `nombreDificultad`, `numero`, `etiqueta`, `texto`, `cambiado`, `revelado`) y emite los eventos `reto:revelado` y `reto:cambiando` |
 | `js/upload.js` | Formulario, validación, base64, XHR con progreso |
 | `apps-script/Code.gs` | Backend (se copia a mano en script.google.com, NO se despliega desde aquí) |
 | `apps-script/GUIA.md` | Pasos para desplegar el backend |
@@ -55,9 +55,18 @@ Orden de scripts (todos con `defer`): `data.js` → `storage.js` → `comun.js` 
   cambiar de dificultad). `fiesta2122:revelado-v2 = "1"` tras ver la animación;
   después se muestra el resultado directamente, sin botones ni ruleta.
   Las claves antiguas (`fiesta2122:reto`/`revelado`) se ignoran.
+- **Cambio de reto (una sola vez):** bajo el resultado, botón «Canviar repte
+  (només 1 cop)» → confirmación → ruleta otra vez en la **misma dificultad**,
+  nunca al mismo número (`aleatorioDistinto`). Se guarda en la misma clave,
+  antes de la animación: `{"dificultad":"medio","numero":3,"cambiado":true,"anterior":7}`,
+  y se borra `revelado-v2` (si recargan a mitad, sale «Descobreix» con el
+  número nuevo). Con `cambiado: true` el botón desaparece y sale «Ja has fet
+  servir el canvi de repte.». Durante el giro se emite `reto:cambiando` y el
+  formulario no muestra ni envía el número viejo.
   **No debe existir forma de re-sortear desde la interfaz.** Única excepción,
   oculta y solo para pruebas: abrir `reto.html?reset` borra el reto guardado
-  (y quita `?reset` de la URL con `history.replaceState`). Ni el orden de cada
+  **y el cambio usado** (van en la misma clave) y quita `?reset` de la URL con
+  `history.replaceState`. Ni el orden de cada
   lista ni las claves `facil/medio/dificil` se cambian una vez repartidos.
 - Todo acceso a localStorage pasa por `Almacen` (try/catch). Si no hay
   almacenamiento, la web sigue funcionando y avisa.

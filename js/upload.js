@@ -94,6 +94,8 @@
   }
   pintarReto();
   document.addEventListener('reto:revelado', pintarReto);
+  // Durante la ruleta del cambio de reto no se enseña (ni se envía) el número viejo
+  document.addEventListener('reto:cambiando', pintarReto);
   $('ayudaArchivo').textContent = 'Màxim ' + MAX_MB + ' MB · vídeos curts, d\'uns ' + SEG_VIDEO + ' segons';
 
   // Recordamos el nombre para la próxima vez (comodidad, no es crítico)

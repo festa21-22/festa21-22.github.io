@@ -69,9 +69,10 @@
       </div>
     </div>
 
-    <!-- Confirmación. <dialog> nativo + <form method="dialog">: el botón
-         pulsado cierra el diálogo y deja su value en dialog.returnValue -->
-    <dialog class="dialogo" id="dialogoDif" aria-labelledby="dialogoTitulo" aria-describedby="dialogoTexto">
+    <!-- Confirmación (elegir dificultad y cambiar el reto: reto.js pone el texto).
+         <dialog> nativo + <form method="dialog">: el botón pulsado cierra el
+         diálogo y deja su value en dialog.returnValue -->
+    <dialog class="dialogo" id="dialogoConfirmar" aria-labelledby="dialogoTitulo" aria-describedby="dialogoTexto">
       <form method="dialog">
         <p class="dialogo__titulo" id="dialogoTitulo">Segur?</p>
         <p class="dialogo__texto" id="dialogoTexto"></p>
@@ -102,6 +103,13 @@
         Fes una captura del teu repte
       </p>
       <a class="btn btn--luz" href="#subir">Puja la prova</a>
+
+      <!-- Cambio de reto: UNA sola vez, misma dificultad. reto.js decide qué se ve. -->
+      <button class="btn btn--secundario resultado__cambiar" id="btnCambiar" type="button" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg>
+        Canviar repte (només 1 cop)
+      </button>
+      <p class="resultado__nota" id="cambioUsado" hidden>Ja has fet servir el canvi de repte.</p>
     </div>
 
     <p class="aviso aviso--error" id="avisoAlmacen" hidden>

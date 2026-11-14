@@ -15,7 +15,12 @@
       lo tenga ve el texto nuevo.
    3. Una segunda clave ("revelado") recuerda si ya viste la animación;
       en visitas posteriores se muestra el resultado directamente.
-   4. Modo prueba oculto: abrir reto.html?reset borra el reto guardado.
+   4. Cambio de reto: UNA sola vez, dentro de la MISMA dificultad y nunca al
+      mismo número. Se guarda en la misma clave que el reto:
+        {"dificultad":"medio","numero":3,"cambiado":true,"anterior":7}
+      También se guarda ANTES de la animación (recargar no da otro intento).
+   5. Modo prueba oculto: abrir reto.html?reset borra el reto guardado
+      (y con él el cambio usado, porque van en la misma clave).
 
    Las claves llevan "-v2": las del sistema antiguo (un solo listado de
    retos) se ignoran y la persona elige dificultad como si fuera nueva.
@@ -29,7 +34,7 @@
   if (!F || !C || !A) return;
   var $ = C.$;
 
-  var CLAVE_RETO = 'fiesta2122:reto-v2';          // '{"dificultad":"medio","numero":7}'
+  var CLAVE_RETO = 'fiesta2122:reto-v2';          // '{"dificultad":"medio","numero":7,"cambiado":false}'
   var CLAVE_REVELADO = 'fiesta2122:revelado-v2';  // "1" tras ver la animación
   var DIFICULTADES = ['facil', 'medio', 'dificil'];
   var NOMBRES = F.nombresDificultad || { facil: 'Fàcil', medio: 'Mitjà', dificil: 'Difícil' };
@@ -75,6 +80,18 @@
     return Math.floor(Math.random() * total) + 1;
   }
 
+  // Número 1..total distinto de "excluido", con la misma probabilidad para
+  // todos los demás: sorteamos entre total-1 huecos y "saltamos" el excluido.
+  // (Repetir el sorteo hasta que salga otro también valdría, pero así es
+  // un solo sorteo y siempre termina.)
+  function aleatorioDistinto(total, excluido) {
+    var n = aleatorio(total - 1);
+    return n >= excluido ? n + 1 : n;
+  }
+
+  // ¿Se puede cambiar? Solo si no se ha usado y hay al menos otro reto
+  function puedeCambiar(r) { return !r.cambiado && lista(r.dificultad).length > 1; }
+
   // 7 → "07" (mismo formato que el nombre de archivo Reto07)
   function dosCifras(n) { return String(n).padStart(2, '0'); }
 
@@ -87,6 +104,7 @@
     numero: null,
     etiqueta: '',
     texto: '',
+    cambiado: false,
     revelado: false
   };
 
@@ -97,6 +115,7 @@
     R.numero = r.numero;
     R.etiqueta = dosCifras(r.numero);
     R.texto = lista(r.dificultad)[r.numero - 1];
+    R.cambiado = !!r.cambiado;
   }
 
   function marcarRevelado() {
@@ -108,7 +127,8 @@
   /* ---------- Interfaz ---------- */
 
   var eleccion = $('eleccion');
-  var dialogo = $('dialogoDif');
+  var dialogo = $('dialogoConfirmar');
+  var btnCambiar = $('btnCambiar');
   var maquina = $('maquina');
   var tira = $('tira');
   var btn = $('btnDescubrir');
@@ -135,6 +155,16 @@
     btn.hidden = true;
     resultado.hidden = false;
     if (animar) resultado.classList.add('resultado--entra');
+    pintarCambio();
+  }
+
+  // Botón "Canviar repte" si aún no se ha usado; si no, el texto de aviso
+  function pintarCambio() {
+    var r = leerGuardado() || window.MiReto;
+    var puede = puedeCambiar(r);
+    btnCambiar.hidden = !puede;
+    btnCambiar.disabled = false;
+    $('cambioUsado').hidden = !r.cambiado;
   }
 
   // Deja el rodillo mostrando solo el número final (sin animación)
@@ -147,22 +177,22 @@
     maquina.classList.add('maquina--revelada');
   }
 
-  /* --- Paso 1: elegir dificultad y confirmar --- */
+  /* --- Confirmación (sirve para elegir dificultad y para cambiar el reto) --- */
 
-  var pendiente = null;   // dificultad que se está confirmando
+  var alConfirmar = null;   // función a ejecutar si dicen que sí
 
-  function pedirConfirmacion(dif) {
-    pendiente = dif;
-    $('dialogoTexto').textContent =
-      'Has triat «' + NOMBRES[dif] + '». No podràs canviar la dificultat.';
+  function confirmar(texto, accion) {
+    alConfirmar = accion;
+    $('dialogoTexto').textContent = texto;
 
     // <dialog> nativo: accesible (foco atrapado, Esc cierra). Si el navegador
     // es antiguo y no lo tiene, usamos confirm() del sistema.
     if (dialogo && typeof dialogo.showModal === 'function') {
       dialogo.returnValue = '';
       dialogo.showModal();
-    } else if (window.confirm('Segur? Has triat «' + NOMBRES[dif] + '». No podràs canviar la dificultat.')) {
-      elegir(dif);
+    } else if (window.confirm('Segur? ' + texto)) {
+      alConfirmar = null;
+      accion();
     }
   }
 
@@ -170,9 +200,17 @@
   // y returnValue vale el "value" del botón ("si" / "no"; Esc → "").
   if (dialogo) {
     dialogo.addEventListener('close', function () {
-      if (dialogo.returnValue === 'si' && pendiente) elegir(pendiente);
-      pendiente = null;
+      var accion = alConfirmar;
+      alConfirmar = null;
+      if (dialogo.returnValue === 'si' && accion) accion();
     });
+  }
+
+  /* --- Paso 1: elegir dificultad --- */
+
+  function pedirConfirmacion(dif) {
+    confirmar('Has triat «' + NOMBRES[dif] + '». No podràs canviar la dificultat.',
+      function () { elegir(dif); });
   }
 
   function elegir(dif) {
@@ -182,6 +220,43 @@
     asignar(r);
     mostrarMaquina();
     btn.hidden = true;   // la ruleta arranca sola tras confirmar
+    girar();
+  }
+
+  /* --- Cambio de reto (una sola vez, misma dificultad) --- */
+
+  function pedirCambio() {
+    confirmar('Només pots canviar el repte una vegada.', cambiarReto);
+  }
+
+  function cambiarReto() {
+    var R = window.MiReto;
+    // Sin localStorage (modo incógnito) usamos lo que hay en memoria
+    var actual = leerGuardado() ||
+      (R.dificultad ? { dificultad: R.dificultad, numero: R.numero, cambiado: R.cambiado } : null);
+    if (!actual || !puedeCambiar(actual)) { pintarCambio(); return; }  // por si acaso
+
+    var nuevo = {
+      dificultad: actual.dificultad,
+      numero: aleatorioDistinto(lista(actual.dificultad).length, actual.numero),
+      cambiado: true,
+      anterior: actual.numero        // por si los organizadores lo quieren saber
+    };
+    // Igual que al elegir: se guarda ANTES de la animación y se marca como
+    // no revelado; si recargan a mitad, sale el botón de girar con el nuevo.
+    A.guardar(CLAVE_RETO, JSON.stringify(nuevo));
+    A.borrar(CLAVE_REVELADO);
+    asignar(nuevo);
+    R.revelado = false;
+    document.dispatchEvent(new CustomEvent('reto:cambiando'));  // upload.js oculta el número viejo
+
+    // Volvemos a la máquina: se esconde el resultado y gira otra vez
+    btnCambiar.hidden = true;
+    resultado.hidden = true;
+    resultado.classList.remove('resultado--entra');
+    maquina.classList.remove('maquina--revelada');
+    btn.hidden = true;
+    maquina.scrollIntoView({ behavior: sinMovimiento ? 'auto' : 'smooth', block: 'center' });
     girar();
   }
 
@@ -278,6 +353,7 @@
     b.querySelector('.btn-dif__nombre').textContent = NOMBRES[dif];
     b.addEventListener('click', function () { pedirConfirmacion(dif); });
   });
+  btnCambiar.addEventListener('click', pedirCambio);
 
   var guardado = leerGuardado();
 
