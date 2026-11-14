@@ -15,9 +15,9 @@
      después de editar, casi siempre es una coma o comilla que falta
      (abre la consola del navegador con F12 y mira el error).
 
-   ⚠️  Fechas, horarios, lugar, agenda y actividades ya son los REALES.
-       Siguen siendo de EJEMPLO (pendientes de confirmar): dirección,
-       indicaciones, "qué llevar", las respuestas de la FAQ, las
+   ⚠️  Fechas, horarios, lugar, dirección, agenda y actividades ya son
+       los REALES. Siguen siendo de EJEMPLO (pendientes de confirmar):
+       "qué llevar" (oculto), algunas respuestas de la FAQ, las
        descripciones de las actividades y los retos.
    =========================================================================== */
 
@@ -44,7 +44,6 @@ window.FIESTA = {
   /* ---------- UBICACIÓN ---------- */
   lugar: {
     nombre: "Casa de Colònies Can Ramió",
-    // ⚠️ La dirección y las indicaciones son de EJEMPLO: cámbialas por las reales.
     direccion: "Camí del Molí 12, 17150 Sant Pere del Bosc, Girona",
     // Enlace de Google Maps. Si lo dejas vacío "", se genera solo a partir
     // de la dirección. Para uno exacto: Google Maps > Compartir > Copiar enlace.
@@ -113,14 +112,13 @@ window.FIESTA = {
 
 
   /* ---------- PREGUNTAS FRECUENTES ----------
-     ⚠️ Respuestas de EJEMPLO (precio, aparcamiento, camas): revísalas.     */
+     ⚠️ Pendientes de confirmar: "Puc portar algú?", "On aparco?" y
+        "Puc marxar dissabte a la nit?".                                     */
   faq: [
     { pregunta: "Puc portar algú?",
       respuesta: "Pregunta-ho abans a l'organització: les places per dormir són limitades." },
     { pregunta: "Hi ha llits per a tothom?",
-      respuesta: "Hi ha llits i matalassos per a tothom, però porta sac o llençols." },
-    { pregunta: "S'ha de pagar alguna cosa?",
-      respuesta: "Sí: 25 € per persona per la casa i el menjar. Bizum a l'organització abans del 18 de novembre." },
+      respuesta: "Sí, hi ha llits per a tothom." },
     { pregunta: "On aparco?",
       respuesta: "A l'esplanada de l'entrada. Si és plena, al camí sense tallar el pas." },
     { pregunta: "Puc marxar dissabte a la nit?",
