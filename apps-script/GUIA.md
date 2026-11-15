@@ -129,7 +129,7 @@ Móvil ──POST {accion:"like",...}──▶ doPost (Code.gs) ──▶ atende
 | Quién | Qué ve |
 |---|---|
 | Invitado (web, también con F12) | Nombres de participantes, **sus** likes, **sus** matches. Nunca quién le ha marcado si no es mutuo. |
-| Organizadores (dueños de la Sheet) | Todo: participantes y likes (por id). |
+| Organizadores (dueños de la Sheet) | Todo: participantes y likes (con ids y nombres). |
 | Nadie | El PIN: solo se guarda `SHA-256(pimienta + salt + PIN)`. |
 
 La **pimienta** es un secreto aleatorio que se guarda en *Configuración del
@@ -198,6 +198,10 @@ Después la persona correcta ya puede registrarse con ese nombre.
 
 **Desbloquear un nombre antes de 15 min:** en **Participants**, pon
 `intents_fallits` y `bloquejat_fins` a `0` en su fila.
+
+**Nombres en Likes:** las columnas `de_nom` y `a_nom` son solo para leer. Si
+actualizas `Match.gs` desde una versión sin ellas, ejecuta `configurarMatch`
+una vez: añade la cabecera y rellena los nombres de los likes ya guardados.
 
 **No edites otras columnas a mano** (`salt`, `hash_pin`, `hash_sessio`…):
 romperías el acceso de esa persona.

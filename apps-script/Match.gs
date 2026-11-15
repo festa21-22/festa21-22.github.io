@@ -8,7 +8,8 @@
    Base de datos: una Google Sheet con dos hojas (las crea configurarMatch):
      Participants: id | nom | nom_normalitzat | salt | hash_pin | hash_sessio |
                    intents_fallits | bloquejat_fins | creat
-     Likes:        de | a | data | match_vist
+     Likes:        de | a | data | match_vist | de_nom | a_nom
+                   (de_nom y a_nom son solo para leer la Sheet; el código usa los ids)
 
    Reglas de privacidad (todas se cumplen AQUÍ, no en el navegador):
    - El PIN nunca se guarda: solo SHA-256(pimienta + salt + PIN).
@@ -43,7 +44,8 @@ const HOJA_PART = 'Participants';
 const HOJA_LIKES = 'Likes';
 const CABECERA_PART = ['id', 'nom', 'nom_normalitzat', 'salt', 'hash_pin', 'hash_sessio',
                        'intents_fallits', 'bloquejat_fins', 'creat'];
-const CABECERA_LIKES = ['de', 'a', 'data', 'match_vist'];
+// Los nombres van AL FINAL: el código lee las columnas por posición (0-3)
+const CABECERA_LIKES = ['de', 'a', 'data', 'match_vist', 'de_nom', 'a_nom'];
 
 // Letras (con acentos, ç, ñ...), espacios, apóstrofo, guion, punto y punt volat.
 // Empieza por letra: así nunca empieza por "=", "+", "-" o "@", que Sheets
@@ -188,7 +190,7 @@ function darLike(bd, yo, p) {
   const reciproco = bd.likes.some(function (l) { return l.de === a && l.a === yo.id; });
   const hayMatch = reciproco && esRevelado();
   // Si hay match, quien da el like lo ve ahora mismo: su fila ya nace "vista"
-  bd.hl.appendRow([yo.id, a, fechaLegible(), hayMatch ? 'si' : '']);
+  bd.hl.appendRow([yo.id, a, fechaLegible(), hayMatch ? 'si' : '', yo.nombre, otro.nombre]);
   return { ok: true, match: hayMatch ? { id: otro.id, nombre: otro.nombre } : null };
 }
 
@@ -218,6 +220,7 @@ function configurarMatch() {
   prepararHoja(ss, HOJA_PART, CABECERA_PART);
   prepararHoja(ss, HOJA_LIKES, CABECERA_LIKES);
   pimienta();   // la crea si no existe
+  rellenarNombresLikes();
   console.log('OK. Hojas listas en "' + ss.getName() + '"');
 }
 
@@ -230,6 +233,28 @@ function borrarCuentaManual() {
   if (!x) { console.warn('No existe ninguna cuenta con el nombre "' + NOMBRE + '"'); return; }
   borrarCuenta(bd, x.id);
   console.log('Borrada la cuenta "' + x.nombre + '" y todos sus likes.');
+}
+
+
+// Escribe de_nom y a_nom en los likes que no los tengan (los guardados antes
+// de añadir esas columnas). La llama configurarMatch; se puede repetir sin problema.
+function rellenarNombresLikes() {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const bd = abrirBD();
+    const porId = indicePorId(bd);
+    const filas = leerFilas(bd.hl, CABECERA_LIKES.length);
+    if (!filas.length) return;
+    const nombres = filas.map(function (f) {
+      const de = porId[f.v[0]], a = porId[f.v[1]];
+      return [f.v[4] || (de ? de.nombre : ''), f.v[5] || (a ? a.nombre : '')];
+    });
+    bd.hl.getRange(2, 5, nombres.length, 2).setValues(nombres);
+    console.log('Nombres puestos en ' + nombres.length + ' likes.');
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 

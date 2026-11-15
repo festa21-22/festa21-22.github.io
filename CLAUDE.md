@@ -119,6 +119,8 @@ lista de pruebas: `apps-script/GUIA.md` (sección «Match de la festa»).
   código no deja bajar) y **solo con la página visible** (Page Visibility API).
   Cada match anima una sola vez: el servidor marca `match_vist` al entregarlo.
 - **Baja:** borra la fila del participante y todos los likes dados y recibidos.
+- La hoja Likes guarda también `de_nom` y `a_nom` (columnas E-F, solo para que
+  los organizadores lean la Sheet; el código usa los ids de A-D por posición).
 - Los organizadores pueden ver la Sheet (son sus dueños). Se decidió no
   mencionarlo en el texto «Com funciona».
 - **Contrato** (POST text/plain, mismo `doPost` y `clave` que la subida; con
