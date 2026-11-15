@@ -77,6 +77,11 @@ Para probar en un móvil de verdad, lo más fácil es publicarlo en GitHub Pages
 vuelven a salir los botones de dificultad. Desde la interfaz no hay botón para
 hacerlo, a propósito.
 
+**Probar los retos antes de la fiesta:** hasta el sábado 21 a las 20:00 la
+página del reto está bloqueada (sorpresa con cuenta atrás). `reto.html?unlock`
+la desbloquea **solo en tu navegador** (se recuerda); `reto.html?lock` la vuelve
+a bloquear. Se puede combinar: `reto.html?reset&unlock`.
+
 ## Publicar en GitHub Pages
 
 El repositorio está en la organización `festa21-22` y se llama

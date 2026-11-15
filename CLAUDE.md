@@ -54,16 +54,29 @@ Orden de scripts (todos con `defer`): `data.js` → `storage.js` → `comun.js` 
   3 botones → confirmación (`<dialog>`, fallback `confirm()`) → ruleta 1..10 de
   esa lista → número + texto + etiqueta de color (verde/amarillo/rojo).
   La elección es **definitiva**: se guarda en localStorage
-  `fiesta2122:reto-v2 = '{"dificultad":"medio","numero":7}'` (número 1-based,
+  `fiesta2122:reto-v3 = '{"dificultad":"medio","numero":7}'` (número 1-based,
   **nunca el texto**), **antes** de la animación (recargar no re-sortea ni deja
-  cambiar de dificultad). `fiesta2122:revelado-v2 = "1"` tras ver la animación;
+  cambiar de dificultad). `fiesta2122:revelado-v3 = "1"` tras ver la animación;
   después se muestra el resultado directamente, sin botones ni ruleta.
-  Las claves antiguas (`fiesta2122:reto`/`revelado`) se ignoran.
+  Las claves antiguas (`fiesta2122:reto`/`revelado` y `-v2`) se **borran** al
+  entrar en `reto.html` (reinicio general del 15-11-2026: todo el mundo vuelve
+  a elegir). Para otro reinicio general: subir a `-v4` y añadir las `-v3` a
+  `CLAVES_ANTIGUAS` en `reto.js`.
+- **Retos bloqueados hasta la fiesta:** hasta `FIESTA.retosApertura`
+  (sábado 21, 20:00) `reto.html` muestra una sorpresa con «?», cuenta atrás y
+  `FIESTA.retosSorpresa.mensaje`; no se ve la elección, ni ningún reto, ni la
+  subida (`#subir` viene `hidden` en el HTML y lo enseña `iniciar()`). Si la
+  página está abierta a la hora, se desbloquea sola con animación («?» → dado
+  + confeti); si llega en segundo plano, espera a que vuelva a estar visible.
+  Bloqueo **solo en la web** con la hora del móvil (decisión consciente: los
+  retos están en `data.js`, público). Pruebas: `reto.html?unlock` desbloquea
+  ese navegador (`fiesta2122:retos-unlock = "1"`, se recuerda);
+  `reto.html?lock` lo quita. Ambos se quitan de la URL como `?reset`.
 - **Cambio de reto (una sola vez):** bajo el resultado, botón «Canviar repte
   (només 1 cop)» → confirmación → ruleta otra vez en la **misma dificultad**,
   nunca al mismo número (`aleatorioDistinto`). Se guarda en la misma clave,
   antes de la animación: `{"dificultad":"medio","numero":3,"cambiado":true,"anterior":7}`,
-  y se borra `revelado-v2` (si recargan a mitad, sale «Descobreix» con el
+  y se borra `revelado-v3` (si recargan a mitad, sale «Descobreix» con el
   número nuevo). Con `cambiado: true` el botón desaparece y sale «Ja has fet
   servir el canvi de repte.». Durante el giro se emite `reto:cambiando` y el
   formulario no muestra ni envía el número viejo.
@@ -166,6 +179,11 @@ lista de pruebas: `apps-script/GUIA.md` (sección «Match de la festa»).
   Mac/Linux: `python3 -m http.server 8080`.
 - Probar siempre en vista móvil (375×812) y comprobar la consola sin errores.
 - Re-sortear para pruebas: abrir `reto.html?reset` (o `localStorage.clear()` en la consola).
+- Retos antes de la hora: `reto.html?unlock` (solo ese navegador); `?lock` para volver
+  a verlo bloqueado. Se combinan: `reto.html?reset&unlock`.
+- En el panel del navegador de Claude Code, si está **oculto**, Chrome no pinta
+  fotogramas: no se disparan `requestAnimationFrame` ni el evento `close` de
+  `<dialog>` (los diálogos parecen no hacer nada). No es un fallo de la web.
 - Match sin backend: `http://localhost:8080/match.html?demo` (participantes falsos;
   `&revelacion=2` simula revelación en 2 min; `&apertura=1` Sorpresa que se abre en 1 min). Con backend real: lista de pruebas en `apps-script/GUIA.md`.
 

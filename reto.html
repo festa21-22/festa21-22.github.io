@@ -48,6 +48,26 @@
   <section id="reto" class="seccion seccion--reto" aria-labelledby="h-reto">
     <h2 class="sr-only" id="h-reto">El teu repte personal</h2>
 
+    <!-- Bloqueado hasta FIESTA.retosApertura: sorpresa con cuenta atrás (reto.js).
+         Mismo estilo que la sorpresa del Match. -->
+    <div class="sorpresa" id="bloqueoRetos" hidden>
+      <div class="sorpresa__icono" aria-hidden="true">
+        <svg class="sorpresa__interrogante" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.4c-.6.3-1 .8-1 1.5v.6M12 16.8h.01"/></svg>
+        <svg class="sorpresa__despues sorpresa__dado" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2"/><circle cx="15" cy="15" r="1.2"/><circle cx="15" cy="9" r="1.2"/><circle cx="9" cy="15" r="1.2"/></svg>
+      </div>
+      <p class="sorpresa__mensaje" id="bloqueoMensaje"></p>
+      <div class="cuenta sorpresa__cuenta" id="bloqueoCuenta">
+        <p class="cuenta__titulo">Falten</p>
+        <div class="cuenta__cajas">
+          <div class="caja"><span class="caja__num" data-u="d">--</span><span class="caja__lbl">dies</span></div>
+          <div class="caja"><span class="caja__num" data-u="h">--</span><span class="caja__lbl">hores</span></div>
+          <div class="caja"><span class="caja__num" data-u="m">--</span><span class="caja__lbl">min</span></div>
+          <div class="caja"><span class="caja__num" data-u="s">--</span><span class="caja__lbl">seg</span></div>
+        </div>
+        <p class="cuenta__fecha" id="bloqueoFecha"></p>
+      </div>
+    </div>
+
     <!-- Paso 1 (solo la primera vez): elegir dificultad. Lo muestra reto.js.
          Los nombres de los botones se leen de FIESTA.nombresDificultad. -->
     <div class="eleccion" id="eleccion" hidden>
@@ -117,7 +137,7 @@
       si recarregues la pàgina et pot sortir un altre repte.
     </p>
 
-    <p class="aviso">
+    <p class="aviso" id="avisoNavegador">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
       <span>Obre sempre la web des del mateix navegador. Si l'obres des de WhatsApp o Instagram
       i després des de Chrome o Safari, no veuràs el mateix repte.</span>
@@ -126,7 +146,8 @@
 
 
   <!-- =================================================== SUBIR PRUEBA -->
-  <section id="subir" class="seccion" aria-labelledby="h-subir">
+  <!-- Oculto hasta que reto.js sabe que los retos están desbloqueados -->
+  <section id="subir" class="seccion" aria-labelledby="h-subir" hidden>
     <header class="seccion__cab revelar">
       <p class="seccion__num">02</p>
       <h2 id="h-subir">Puja la prova</h2>

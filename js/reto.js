@@ -21,9 +21,16 @@
       También se guarda ANTES de la animación (recargar no da otro intento).
    5. Modo prueba oculto: abrir reto.html?reset borra el reto guardado
       (y con él el cambio usado, porque van en la misma clave).
+   6. Bloqueo: hasta FIESTA.retosApertura la página es una "sorpresa" con
+      cuenta atrás: no se puede elegir dificultad, ni ver retos, ni subir
+      pruebas. Si la página está abierta a la hora, se desbloquea sola con
+      una animación. Es un bloqueo SOLO de la web (hora del móvil): los retos
+      están en data.js, que es público, así que no protege nada secreto.
+      Prueba antes de hora: reto.html?unlock desbloquea SOLO este navegador
+      (se recuerda); reto.html?lock lo vuelve a bloquear.
 
-   Las claves llevan "-v2": las del sistema antiguo (un solo listado de
-   retos) se ignoran y la persona elige dificultad como si fuera nueva.
+   Las claves llevan "-v3": las anteriores (-v2 y sin versión) se BORRAN al
+   entrar, así quien eligió reto antes vuelve a empezar desde cero.
    =========================================================================== */
 (function () {
   'use strict';
@@ -34,20 +41,30 @@
   if (!F || !C || !A) return;
   var $ = C.$;
 
-  var CLAVE_RETO = 'fiesta2122:reto-v2';          // '{"dificultad":"medio","numero":7,"cambiado":false}'
-  var CLAVE_REVELADO = 'fiesta2122:revelado-v2';  // "1" tras ver la animación
+  var CLAVE_RETO = 'fiesta2122:reto-v3';          // '{"dificultad":"medio","numero":7,"cambiado":false}'
+  var CLAVE_REVELADO = 'fiesta2122:revelado-v3';  // "1" tras ver la animación
+  var CLAVE_UNLOCK = 'fiesta2122:retos-unlock';   // "1" = desbloqueado antes de hora (solo pruebas)
+  // Versiones anteriores: se borran siempre (reinicio general de los retos)
+  var CLAVES_ANTIGUAS = ['fiesta2122:reto', 'fiesta2122:revelado', 'fiesta2122:reto-v2', 'fiesta2122:revelado-v2'];
   var DIFICULTADES = ['facil', 'medio', 'dificil'];
   var NOMBRES = F.nombresDificultad || { facil: 'Fàcil', medio: 'Mitjà', dificil: 'Difícil' };
   var DURACION_GIRO = 3600; // ms
 
   var sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- Modo prueba: ?reset ---------- */
-  // Borra el reto guardado y quita "?reset" de la dirección (replaceState no
-  // recarga), para que una recarga normal no lo vuelva a borrar.
-  if (/[?&]reset\b/.test(location.search)) {
+  CLAVES_ANTIGUAS.forEach(function (k) { A.borrar(k); });
+
+  /* ---------- Modos de prueba: ?reset, ?unlock, ?lock ---------- */
+  // Se quitan de la dirección con replaceState (no recarga) para que una
+  // recarga normal no los vuelva a aplicar.
+  var params = location.search;
+  if (/[?&]reset\b/.test(params)) {        // borra el reto guardado (y el cambio usado)
     A.borrar(CLAVE_RETO);
     A.borrar(CLAVE_REVELADO);
+  }
+  if (/[?&]unlock\b/.test(params)) A.guardar(CLAVE_UNLOCK, '1');
+  if (/[?&]lock\b/.test(params)) A.borrar(CLAVE_UNLOCK);
+  if (/[?&](reset|unlock|lock)\b/.test(params)) {
     history.replaceState(null, '', location.pathname + location.hash);
   }
 
@@ -310,9 +327,10 @@
 
   /* ---------- Confeti con Web Animations API ---------- */
   // element.animate() anima desde JS con la misma eficiencia que CSS, sin librerías.
-  function confeti() {
+  // origen: elemento desde cuyo centro sale el confeti (por defecto, la máquina)
+  function confeti(origen) {
     var capa = $('confeti');
-    var caja = maquina.getBoundingClientRect();
+    var caja = (origen || maquina).getBoundingClientRect();
     var x0 = caja.left + caja.width / 2;
     var y0 = caja.top + caja.height * .45;
     var colores = ['#ffc65c', '#ff9f4a', '#fff1c9', '#ff7a5c', '#8fd3ff', '#b8f28c'];
@@ -343,37 +361,100 @@
     }
   }
 
+  /* ---------- Bloqueo hasta la fiesta ---------- */
+
+  var aperturaMs = F.retosApertura ? new Date(F.retosApertura).getTime() : 0;
+  // ?unlock vale aunque no haya localStorage (solo para esta visita)
+  var desbloqueoPrueba = !/[?&]lock\b/.test(params) &&
+    (/[?&]unlock\b/.test(params) || A.leer(CLAVE_UNLOCK) === '1');
+  var relojBloqueo = null;
+
+  function falta() { return aperturaMs - Date.now(); }
+  function estaBloqueado() { return !desbloqueoPrueba && falta() > 0; }
+
+  function mostrarBloqueo() {
+    $('bloqueoRetos').hidden = false;      // #subir sigue oculto: la subida también espera
+    $('avisoNavegador').hidden = true;
+    $('bloqueoMensaje').textContent = (F.retosSorpresa && F.retosSorpresa.mensaje) || '';
+    $('bloqueoFecha').textContent = C.capital(C.diaLargo(F.retosApertura)) + ' · ' + C.hora(F.retosApertura) + ' h';
+    relojBloqueo = setInterval(pintarCuentaBloqueo, 1000);
+    pintarCuentaBloqueo();   // la primera, ya (después de crear el reloj: si no, sale sin pintar)
+    // Si llega la hora con la pestaña en segundo plano, esperamos a que
+    // vuelva para que se vea la animación
+    document.addEventListener('visibilitychange', pintarCuentaBloqueo);
+  }
+
+  function pintarCuentaBloqueo() {
+    if (!relojBloqueo) return;
+    var s = Math.floor(Math.max(0, falta()) / 1000);
+    var partes = { d: Math.floor(s / 86400), h: Math.floor(s / 3600) % 24, m: Math.floor(s / 60) % 60, s: s % 60 };
+    $('bloqueoCuenta').querySelectorAll('[data-u]').forEach(function (n) {
+      n.textContent = String(partes[n.getAttribute('data-u')]).padStart(2, '0');
+    });
+    if (falta() <= 0 && document.visibilityState === 'visible') desbloquear();
+  }
+
+  // "?" que gira y se convierte en el dado, confeti y aparece la elección
+  function desbloquear() {
+    clearInterval(relojBloqueo);
+    relojBloqueo = null;
+    document.removeEventListener('visibilitychange', pintarCuentaBloqueo);
+    var caja = $('bloqueoRetos');
+    function fin() {
+      caja.hidden = true;
+      caja.classList.remove('sorpresa--revelando');
+      $('avisoNavegador').hidden = false;
+      iniciar();
+      var seccion = $('reto');
+      seccion.classList.add('seccion--entra');
+      setTimeout(function () { seccion.classList.remove('seccion--entra'); }, 900);
+    }
+    if (sinMovimiento) return fin();
+    caja.classList.add('sorpresa--revelando');
+    setTimeout(function () { confeti(caja.querySelector('.sorpresa__icono')); }, 900);
+    setTimeout(fin, 2200);
+  }
+
   /* ---------- Arranque ---------- */
 
-  if (!A.disponible) $('avisoAlmacen').hidden = false;
+  // Lo de siempre: elegir dificultad, girar o mostrar el reto guardado
+  function iniciar() {
+    // #subir viene oculto en el HTML (así no se ve ni un instante antes de
+    // saber si está bloqueado); upload.js ya lo ha preparado
+    $('subir').hidden = false;
+    if (!A.disponible) $('avisoAlmacen').hidden = false;
 
-  // Nombres de los botones desde data.js
-  eleccion.querySelectorAll('[data-dificultad]').forEach(function (b) {
-    var dif = b.getAttribute('data-dificultad');
-    b.querySelector('.btn-dif__nombre').textContent = NOMBRES[dif];
-    b.addEventListener('click', function () { pedirConfirmacion(dif); });
-  });
-  btnCambiar.addEventListener('click', pedirCambio);
+    // Nombres de los botones desde data.js
+    eleccion.querySelectorAll('[data-dificultad]').forEach(function (b) {
+      var dif = b.getAttribute('data-dificultad');
+      b.querySelector('.btn-dif__nombre').textContent = NOMBRES[dif];
+      b.addEventListener('click', function () { pedirConfirmacion(dif); });
+    });
+    btnCambiar.addEventListener('click', pedirCambio);
 
-  var guardado = leerGuardado();
+    var guardado = leerGuardado();
 
-  if (guardado && A.leer(CLAVE_REVELADO) === '1') {
-    // Visita posterior: directamente el resultado
-    asignar(guardado);
-    mostrarMaquina();
-    mostrarNumeroFijo();
-    pintarResultado(false);
-    marcarRevelado();
-  } else if (guardado) {
-    // Ya eligió (y se sorteó) pero cerró antes de ver la animación:
-    // misma dificultad y mismo número, solo falta girar.
-    asignar(guardado);
-    mostrarMaquina();
-    btn.addEventListener('click', girar);
-  } else {
-    // Primera vez: elegir dificultad
-    eleccion.hidden = false;
+    if (guardado && A.leer(CLAVE_REVELADO) === '1') {
+      // Visita posterior: directamente el resultado
+      asignar(guardado);
+      mostrarMaquina();
+      mostrarNumeroFijo();
+      pintarResultado(false);
+      marcarRevelado();
+    } else if (guardado) {
+      // Ya eligió (y se sorteó) pero cerró antes de ver la animación:
+      // misma dificultad y mismo número, solo falta girar.
+      asignar(guardado);
+      mostrarMaquina();
+      btn.addEventListener('click', girar);
+    } else {
+      // Primera vez: elegir dificultad
+      eleccion.hidden = false;
+    }
   }
+
+  if (estaBloqueado()) mostrarBloqueo();
+  else iniciar();
 
   C.irAlAncla();
 })();

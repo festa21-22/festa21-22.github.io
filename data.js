@@ -139,6 +139,16 @@ window.FIESTA = {
      Las claves facil / medio / dificil NO se cambian (se usan en el código
      y en el nombre del archivo en Drive). El nombre visible está en
      "nombresDificultad".                                                    */
+  /* Bloqueo de la página del reto (y de la subida de pruebas): hasta esta
+     hora sale una sorpresa con cuenta atrás. Se mira con la hora del móvil
+     (los retos están aquí, en un archivo público: no es un secreto real).
+     Para probar antes de hora en TU navegador: reto.html?unlock
+     (se recuerda; reto.html?lock lo vuelve a bloquear).                     */
+  retosApertura: "2026-11-21T20:00:00+01:00",
+  retosSorpresa: {
+    mensaje: "Els reptes es desbloquejaran a la festa 😉"
+  },
+
   nombresDificultad: {
     facil:   "Fàcil",
     medio:   "Mitjà",
