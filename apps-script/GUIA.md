@@ -129,7 +129,7 @@ Móvil ──POST {accion:"like",...}──▶ doPost (Code.gs) ──▶ atende
 | Quién | Qué ve |
 |---|---|
 | Invitado (web, también con F12) | Nombres de participantes, **sus** likes, **sus** matches. Nunca quién le ha marcado si no es mutuo. |
-| Organizadores (dueños de la Sheet) | Todo: participantes y likes (por id). Por eso el texto de la web dice que os comprometéis a no mirarlo. |
+| Organizadores (dueños de la Sheet) | Todo: participantes y likes (por id). |
 | Nadie | El PIN: solo se guarda `SHA-256(pimienta + salt + PIN)`. |
 
 La **pimienta** es un secreto aleatorio que se guarda en *Configuración del

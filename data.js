@@ -90,7 +90,6 @@ window.FIESTA = {
       fecha: "2026-11-22",
       eventos: [
         { hora: "12:00", titulo: "Recollida", detalle: "" },
-        { hora: "13:30", titulo: "Dinar", detalle: "" },
         { hora: "15:00", titulo: "Marxem", detalle: "" }
       ]
     }
@@ -227,7 +226,6 @@ window.FIESTA = {
       "Marca les persones que t'agradin. Pots desmarcar-les quan vulguis.",
       "Si dues persones es marquen mútuament, és un match i totes dues ho veuran.",
       "Si marques algú i no et marca, ningú no ho sabrà mai: els likes no recíprocs no es mostren a ningú.",
-      "Les dades es guarden en un full de càlcul dels organitzadors. Hi tenen accés, però es comprometen a no mirar-les.",
       "Et pots donar de baixa quan vulguis: s'esborra el teu compte i tots els teus likes."
     ]
   }
