@@ -24,8 +24,9 @@
    6. Bloqueo: hasta FIESTA.retosApertura la página es una "sorpresa" con
       cuenta atrás: no se puede elegir dificultad, ni ver retos, ni subir
       pruebas. Si la página está abierta a la hora, se desbloquea sola con
-      una animación. Es un bloqueo SOLO de la web (hora del móvil): los retos
-      están en data.js, que es público, así que no protege nada secreto.
+      una animación. Interruptor en la Sheet (Config!B2, AUTO/SI/NO) que se
+      consulta al Apps Script; si no contesta, manda la hora de data.js.
+      Los retos están en data.js, que es público: no protege nada secreto.
       Prueba antes de hora: reto.html?unlock desbloquea SOLO este navegador
       (se recuerda); reto.html?lock lo vuelve a bloquear.
 
@@ -363,14 +364,83 @@
 
   /* ---------- Bloqueo hasta la fiesta ---------- */
 
+  // Quién decide si están abiertos:
+  //   1. ?unlock (solo este navegador, pruebas) → abiertos, sin preguntar a nadie
+  //   2. El interruptor de la Sheet (Config!B2, acción "retos" del Apps Script):
+  //      SI → abiertos · NO → cerrados · AUTO → la hora de data.js, medida con
+  //      la hora del SERVIDOR (que viene en la respuesta)
+  //   3. Si el servidor no contesta (sin conexión, o tarda > 8 s): la hora de
+  //      data.js con la del móvil. Así un fallo de red nunca los deja cerrados.
+  // Solo se pregunta mientras están bloqueados: al cargar, cada 5 min, al
+  // llegar a 0 y luego cada minuto; siempre con la página visible (igual que el Match).
   var aperturaMs = F.retosApertura ? new Date(F.retosApertura).getTime() : 0;
   // ?unlock vale aunque no haya localStorage (solo para esta visita)
   var desbloqueoPrueba = !/[?&]lock\b/.test(params) &&
     (/[?&]unlock\b/.test(params) || A.leer(CLAVE_UNLOCK) === '1');
   var relojBloqueo = null;
+  var desfase = 0;               // hora del servidor − hora del móvil (ms)
+  var modoServidor = null;       // 'AUTO' | 'SI' | 'NO' | null (no ha contestado)
+  var temporizadorRetos = null;
+  var preguntando = false;
+  var CADA_CERRADO = 5 * 60 * 1000;
+  var CADA_ESPERA = 60 * 1000;
+  var MODOS = ['AUTO', 'SI', 'NO'];
 
-  function falta() { return aperturaMs - Date.now(); }
-  function estaBloqueado() { return !desbloqueoPrueba && falta() > 0; }
+  function falta() { return aperturaMs - (Date.now() + desfase); }
+
+  function abiertosSegun(modo) {
+    if (modo === 'SI') return true;
+    if (modo === 'NO') return false;
+    return falta() <= 0;      // AUTO o sin respuesta: manda la hora de data.js
+  }
+
+  // → Promise con el modo, o null si el servidor no contesta bien (plan B)
+  function preguntarModo() {
+    return C.preguntarServidor({ accion: 'retos' }, 8000).then(function (r) {
+      if (!r || !r.ok || MODOS.indexOf(r.modo) < 0) return null;   // p. ej. Apps Script sin actualizar
+      if (typeof r.ahora === 'number') desfase = r.ahora - Date.now();
+      return r.modo;
+    }, function () { return null; });
+  }
+
+  // Pregunta y, según la respuesta, desbloquea o sigue esperando.
+  // animar: true si la persona ya estaba viendo la sorpresa (en directo).
+  function comprobarRetos(animar) {
+    if (preguntando) return;
+    preguntando = true;
+    temporizadorRetos = null;
+    preguntarModo().then(function (modo) {
+      preguntando = false;
+      modoServidor = modo;
+      $('cargandoRetos').hidden = true;
+      if (abiertosSegun(modo)) return desbloquear(animar && !$('bloqueoRetos').hidden);
+      if ($('bloqueoRetos').hidden) mostrarBloqueo();
+      pintarCuentaBloqueo();
+      programarRetos();
+    });
+  }
+
+  function programarRetos() {
+    clearTimeout(temporizadorRetos);
+    temporizadorRetos = null;
+    if (!relojBloqueo || document.visibilityState !== 'visible') return;
+    var resto = falta();
+    var espera;
+    if (resto > 0) {
+      // Justo a la hora (+ hasta 3 s al azar, para no preguntar todos a la vez)
+      // o cada 5 min por si lo abren antes con SI
+      espera = Math.min(resto + Math.random() * 3000, CADA_CERRADO);
+    } else {
+      // Ya es la hora pero sigue cerrado (NO): cada minuto
+      espera = modoServidor === 'NO' ? CADA_ESPERA : Math.random() * 3000;
+    }
+    temporizadorRetos = setTimeout(function () { comprobarRetos(true); }, espera);
+  }
+
+  function alCambiarVisibilidad() {
+    pintarCuentaBloqueo();
+    programarRetos();
+  }
 
   function mostrarBloqueo() {
     $('bloqueoRetos').hidden = false;      // #subir sigue oculto: la subida también espera
@@ -379,9 +449,9 @@
     $('bloqueoFecha').textContent = C.capital(C.diaLargo(F.retosApertura)) + ' · ' + C.hora(F.retosApertura) + ' h';
     relojBloqueo = setInterval(pintarCuentaBloqueo, 1000);
     pintarCuentaBloqueo();   // la primera, ya (después de crear el reloj: si no, sale sin pintar)
-    // Si llega la hora con la pestaña en segundo plano, esperamos a que
-    // vuelva para que se vea la animación
-    document.addEventListener('visibilitychange', pintarCuentaBloqueo);
+    // En segundo plano no se pregunta; al volver, se repinta y se reprograma
+    // (y si ya era la hora, la animación se ve entonces)
+    document.addEventListener('visibilitychange', alCambiarVisibilidad);
   }
 
   function pintarCuentaBloqueo() {
@@ -391,14 +461,25 @@
     $('bloqueoCuenta').querySelectorAll('[data-u]').forEach(function (n) {
       n.textContent = String(partes[n.getAttribute('data-u')]).padStart(2, '0');
     });
-    if (falta() <= 0 && document.visibilityState === 'visible') desbloquear();
+    // Ha pasado la hora pero el servidor ha dicho NO
+    var noEncara = falta() <= 0 && modoServidor === 'NO';
+    var espera = $('bloqueoEspera');
+    espera.textContent = noEncara ? ((F.retosSorpresa && F.retosSorpresa.noEncara) || '') : '';
+    espera.hidden = !noEncara;
+    // Llega a 0: se pregunta al servidor (si hay) en vez de abrir directamente
+    if (falta() <= 0 && document.visibilityState === 'visible' && !temporizadorRetos && !preguntando &&
+        modoServidor !== 'NO') {
+      programarRetos();
+    }
   }
 
   // "?" que gira y se convierte en el dado, confeti y aparece la elección
-  function desbloquear() {
+  function desbloquear(animar) {
     clearInterval(relojBloqueo);
     relojBloqueo = null;
-    document.removeEventListener('visibilitychange', pintarCuentaBloqueo);
+    clearTimeout(temporizadorRetos);
+    temporizadorRetos = null;
+    document.removeEventListener('visibilitychange', alCambiarVisibilidad);
     var caja = $('bloqueoRetos');
     function fin() {
       caja.hidden = true;
@@ -409,7 +490,7 @@
       seccion.classList.add('seccion--entra');
       setTimeout(function () { seccion.classList.remove('seccion--entra'); }, 900);
     }
-    if (sinMovimiento) return fin();
+    if (sinMovimiento || !animar) return fin();
     caja.classList.add('sorpresa--revelando');
     setTimeout(function () { confeti(caja.querySelector('.sorpresa__icono')); }, 900);
     setTimeout(fin, 2200);
@@ -453,8 +534,16 @@
     }
   }
 
-  if (estaBloqueado()) mostrarBloqueo();
-  else iniciar();
+  if (desbloqueoPrueba) {
+    iniciar();
+  } else {
+    // Mientras contesta el servidor: sorpresa si por la hora del móvil aún no
+    // toca; si ya debería estar abierto, "Carregant…" (no enseñamos los retos
+    // hasta saber que no está forzado a NO)
+    if (falta() > 0) mostrarBloqueo();
+    else $('cargandoRetos').hidden = false;
+    comprobarRetos(false);
+  }
 
   C.irAlAncla();
 })();

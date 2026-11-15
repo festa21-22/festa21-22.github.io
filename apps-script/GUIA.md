@@ -301,3 +301,49 @@ Ejemplos: queréis abrirlo a las 19:30 porque ya ha llegado todo el mundo →
 
 Después de A7, devuelve `APERTURA` a `'2026-11-21T20:00:00+01:00'` y publica otra versión.
 En local sin backend: `http://localhost:8080/match.html?demo&apertura=1` (se abre en 1 min).
+
+---
+
+## Interruptor de los retos (`reto.html`)
+
+Los retos (y la subida de pruebas) están bloqueados hasta `retosApertura` de
+`data.js` (sábado 21, 20:00). Además, la misma pestaña **Config** de la Sheet
+tiene una segunda fila:
+
+| Celda | Valor | Qué pasa |
+|---|---|---|
+| A2 `FORZAR_APERTURA_RETOS`, **B2** | `AUTO` (por defecto) | Se abren a la hora de `data.js` (medida con la hora del servidor) |
+| | `SI` | Abiertos **ya** |
+| | `NO` | Cerrados aunque ya sea la hora («Encara no s'han obert…») |
+
+Se cambia desde la app de Sheets, **sin publicar versión nueva**. La web
+pregunta con la acción `retos` (solo devuelve el modo y la hora del servidor;
+los textos de los retos siguen en `data.js`):
+- al cargar `reto.html`, y mientras está bloqueado: cada 5 min, al llegar a 0
+  y luego cada minuto, solo con la página visible. Una vez abierto ya no pregunta
+  (si ponéis `NO` con los retos ya abiertos, se nota al recargar).
+- **Si el servidor no contesta** (sin conexión, o tarda más de 8 s), manda la
+  hora de `data.js`: un fallo de red nunca deja los retos cerrados.
+- `reto.html?unlock` sigue saltándose todo (solo en tu navegador, para probar).
+
+Este bloqueo no es de seguridad: los retos están en `data.js`, que es público.
+El del Match sí lo es (lo comprueba el servidor en cada acción).
+
+### Qué hay que actualizar en Apps Script
+
+1. Sustituye `Match.gs` por el nuevo. **Vuelve a poner tu `SHEET_ID`.**
+   `Código.gs` no cambia.
+2. **Ctrl+S** → ejecuta **`configurarMatch`**: añade la fila 2 de `Config`
+   (`FORZAR_APERTURA_RETOS` = `AUTO`, con desplegable). No toca lo que ya
+   tengas en B1.
+3. **Implementar → Gestionar implementaciones → ✏️ → Versión: Nueva versión → Implementar.**
+
+### Pruebas
+
+| # | Prueba | Resultado esperado |
+|---|---|---|
+| R1 | Antes del sábado, B2 = `AUTO`, abrir `reto.html` | Sorpresa con cuenta atrás |
+| R2 | B2 = `SI` y recargar | Elección de dificultad y subida visibles |
+| R3 | B2 = `SI` con la página abierta en la sorpresa | Se abre sola en ≤ 5 min, con animación |
+| R4 | B2 = `NO` y recargar después de la hora (o con `retosApertura` en el pasado) | Sorpresa con «Encara no s'han obert…» |
+| R5 | Modo avión con la página cerrada y ya pasada la hora → abrir `reto.html` | Se abre (respaldo con la hora de `data.js`) |

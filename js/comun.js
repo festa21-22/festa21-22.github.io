@@ -204,9 +204,33 @@
     }
   }
 
+  /* ---------- Pregunta corta al Apps Script ---------- */
+  // POST text/plain (sin preflight CORS, igual que la subida) con la clave de
+  // data.js. Si no hay URL real, no responde en "ms" milisegundos o la red
+  // falla, la promesa se rechaza: quien llama decide el plan B.
+  function preguntarServidor(datos, ms) {
+    var sub = F.subida || {};
+    var url = (sub.scriptUrl || '').trim();
+    if (!/^https:\/\//.test(url)) return Promise.reject(new Error('sin_servidor'));
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var corte = ctrl ? setTimeout(function () { ctrl.abort(); }, ms || 10000) : null;
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(Object.assign({ clave: sub.clave || '' }, datos)),
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function (r) {
+      clearTimeout(corte);
+      return r.json();
+    }, function (e) {
+      clearTimeout(corte);
+      throw e;
+    });
+  }
+
   window.Comun = {
     $: $, el: el, fmt: fmt, hora: hora, diaLargo: diaLargo, capital: capital, hoyMadrid: hoyMadrid,
-    irAlAncla: irAlAncla, menuMatch: menuMatch
+    irAlAncla: irAlAncla, menuMatch: menuMatch, preguntarServidor: preguntarServidor
   };
 
   pintarCampos();

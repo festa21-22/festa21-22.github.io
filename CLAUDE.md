@@ -68,10 +68,20 @@ Orden de scripts (todos con `defer`): `data.js` → `storage.js` → `comun.js` 
   subida (`#subir` viene `hidden` en el HTML y lo enseña `iniciar()`). Si la
   página está abierta a la hora, se desbloquea sola con animación («?» → dado
   + confeti); si llega en segundo plano, espera a que vuelva a estar visible.
-  Bloqueo **solo en la web** con la hora del móvil (decisión consciente: los
-  retos están en `data.js`, público). Pruebas: `reto.html?unlock` desbloquea
-  ese navegador (`fiesta2122:retos-unlock = "1"`, se recuerda);
-  `reto.html?lock` lo quita. Ambos se quitan de la URL como `?reset`.
+  **Interruptor** en la Sheet: `Config!B2` `FORZAR_APERTURA_RETOS` =
+  `AUTO` (manda `retosApertura`, medida con la hora del servidor) | `SI` | `NO`.
+  La web lo pregunta con la acción `retos` del Apps Script
+  (`Comun.preguntarServidor`, timeout 8 s) → `{ok, modo, ahora}`; responde
+  aunque el Match esté cerrado. Solo se pregunta mientras está bloqueado
+  (al cargar, cada 5 min, al llegar a 0 y luego cada minuto si `NO`; solo
+  visible). **Si el servidor no contesta o no entiende `retos`, manda la hora
+  de `data.js`** (un fallo de red nunca deja los retos cerrados). Mientras
+  contesta: sorpresa si por la hora del móvil aún no toca; si ya toca,
+  «Carregant…» (no se enseñan retos hasta saber que no está en `NO`).
+  No es seguridad (los retos están en `data.js`, público): es una sorpresa.
+  Pruebas: `reto.html?unlock` desbloquea
+  ese navegador (`fiesta2122:retos-unlock = "1"`, se recuerda; no pregunta al
+  servidor); `reto.html?lock` lo quita. Ambos se quitan de la URL como `?reset`.
 - **Cambio de reto (una sola vez):** bajo el resultado, botón «Canviar repte
   (només 1 cop)» → confirmación → ruleta otra vez en la **misma dificultad**,
   nunca al mismo número (`aleatorioDistinto`). Se guarda en la misma clave,
@@ -154,7 +164,8 @@ lista de pruebas: `apps-script/GUIA.md` (sección «Match de la festa»).
   `like` → `{ok, match: {id, nombre} | null}`. Errores: `nombre`, `pin`,
   `nombre_ocupado`, `credenciales` (+`quedan`), `bloqueado` (+`minutos`),
   `sesion`, `no_existe`, `limite`, `lleno`, `ocupado`, `accion`, `datos`, `clave`,
-  `cerrado` (+`apertura`, `ahora`).
+  `cerrado` (+`apertura`, `ahora`). Acción aparte para `reto.html`:
+  `retos` → `{ok, modo: AUTO|SI|NO, ahora}` (Config!B2; no es del Match).
   Si cambias el contrato, cambia `Match.gs`, `match.js` y `match-demo.js` a la vez.
 
 ## Estilo de código

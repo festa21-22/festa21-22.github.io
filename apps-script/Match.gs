@@ -20,6 +20,9 @@
    - 5 PIN fallidos para un nombre → bloqueado 15 minutos.
    - Antes de CONFIG_MATCH.APERTURA (hora del servidor) todo se rechaza con
      error "cerrado". Hoja "Config" → FORZAR_APERTURA = AUTO | SI | NO.
+   - Acción "retos" (para reto.html, no es del Match): devuelve el modo de
+     FORZAR_APERTURA_RETOS (Config!B2) y la hora del servidor. Responde
+     siempre, también con el Match cerrado.
 
    Guía completa: apps-script/GUIA.md (sección "Match de la festa")
    =========================================================================== */
@@ -68,6 +71,12 @@ const RE_PIN = /^\d{4}$/;
 
 function atenderMatch(p) {
   const ss = SpreadsheetApp.openById(CONFIG_MATCH.SHEET_ID);
+
+  // Retos (no es del Match, pero usa la misma hoja Config): solo dice el modo
+  // del interruptor y la hora del servidor. Va ANTES del control de apertura
+  // del Match para que funcione aunque el Match esté cerrado. Los retos y su
+  // hora siguen en data.js; con AUTO la web decide con esa hora.
+  if (p.accion === 'retos') return { ok: true, modo: leerModo(ss, 'B2'), ahora: Date.now() };
 
   // Apertura: se decide con la hora DEL SERVIDOR (Date.now() aquí es la de
   // Google), así que cambiar la hora del móvil o tocar el JS no sirve de nada.
@@ -283,28 +292,36 @@ function rellenarNombresLikes() {
 
 /* ---------- Apertura (hoja Config) ---------- */
 
-// Hoja "Config": A1 = FORZAR_APERTURA, B1 = AUTO | SI | NO (desplegable).
-//   AUTO → manda CONFIG_MATCH.APERTURA      SI → abierto ya      NO → cerrado
-// No sobrescribe B1 si ya tiene valor (se puede volver a ejecutar sin miedo).
+// Hoja "Config" (desplegables AUTO | SI | NO):
+//   A1 = FORZAR_APERTURA        B1 → Match. AUTO = manda CONFIG_MATCH.APERTURA
+//   A2 = FORZAR_APERTURA_RETOS  B2 → Retos. AUTO = manda retosApertura de data.js
+//   SI → abierto ya · NO → cerrado aunque haya pasado la hora
+// No sobrescribe B1/B2 si ya tienen valor (se puede volver a ejecutar sin miedo).
 function prepararConfig(ss) {
   const hoja = ss.getSheetByName(HOJA_CONFIG) || ss.insertSheet(HOJA_CONFIG);
-  hoja.getRange('A1').setValue('FORZAR_APERTURA').setFontWeight('bold');
-  const celda = hoja.getRange('B1');
-  if (!String(celda.getDisplayValue()).trim()) celda.setValue('AUTO');
-  celda.setDataValidation(SpreadsheetApp.newDataValidation()
-    .requireValueInList(MODOS_APERTURA, true).setAllowInvalid(false).build());
-  hoja.getRange('A3').setValue('AUTO = s\'obre a l\'hora de CONFIG_MATCH.APERTURA (' +
-    CONFIG_MATCH.APERTURA + ') · SI = obert ja · NO = tancat');
-  hoja.getRange('A3').setFontColor('#666666');
+  const validacion = SpreadsheetApp.newDataValidation()
+    .requireValueInList(MODOS_APERTURA, true).setAllowInvalid(false).build();
+  [['A1', 'B1', 'FORZAR_APERTURA'], ['A2', 'B2', 'FORZAR_APERTURA_RETOS']].forEach(function (f) {
+    hoja.getRange(f[0]).setValue(f[2]).setFontWeight('bold');
+    const celda = hoja.getRange(f[1]);
+    if (!String(celda.getDisplayValue()).trim()) celda.setValue('AUTO');
+    celda.setDataValidation(validacion);
+  });
+  hoja.getRange('A3:A4').setValues([
+    ['Match: AUTO = s\'obre a l\'hora de CONFIG_MATCH.APERTURA (' + CONFIG_MATCH.APERTURA + ') · SI = obert ja · NO = tancat'],
+    ['Reptes: AUTO = s\'obren a l\'hora de retosApertura (data.js) · SI = oberts ja · NO = tancats'],
+  ]).setFontColor('#666666').setFontWeight('normal');
 }
 
-// Lee B1 de "Config". Si falta la hoja o el valor es raro → AUTO.
-function modoApertura(ss) {
+// Lee una celda de "Config". Si falta la hoja o el valor es raro → AUTO.
+function leerModo(ss, celda) {
   const hoja = ss.getSheetByName(HOJA_CONFIG);
   if (!hoja) return 'AUTO';
-  const v = String(hoja.getRange('B1').getDisplayValue()).trim().toUpperCase().replace('Í', 'I');
+  const v = String(hoja.getRange(celda).getDisplayValue()).trim().toUpperCase().replace('Í', 'I');
   return MODOS_APERTURA.indexOf(v) >= 0 ? v : 'AUTO';
 }
+
+function modoApertura(ss) { return leerModo(ss, 'B1'); }
 
 function estaAbierto(ss) {
   const modo = modoApertura(ss);
