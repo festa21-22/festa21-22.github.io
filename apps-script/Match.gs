@@ -18,6 +18,8 @@
    - Antes de la hora de revelación, un like recíproco responde EXACTAMENTE
      igual que uno no recíproco (no se puede deducir nada).
    - 5 PIN fallidos para un nombre → bloqueado 15 minutos.
+   - Antes de CONFIG_MATCH.APERTURA (hora del servidor) todo se rechaza con
+     error "cerrado". Hoja "Config" → FORZAR_APERTURA = AUTO | SI | NO.
 
    Guía completa: apps-script/GUIA.md (sección "Match de la festa")
    =========================================================================== */
@@ -32,7 +34,13 @@ const CONFIG_MATCH = {
   //   '2026-11-21T23:00:00+01:00' → hasta esa hora nadie ve ningún match
   REVELACION: '',
 
-  MAX_INTENTOS: 5,          // PIN fallidos seguidos antes de bloquear el nombre
+  // Hasta esta hora el Match está CERRADO: el servidor rechaza todo (registro,
+  // entrar, likes, consultas). Debe coincidir con match.apertura de data.js
+  // (la web la usa solo para la cuenta atrás; quien decide es el servidor).
+  // Se puede forzar sin tocar código en la hoja "Config" (FORZAR_APERTURA).
+  APERTURA: '2026-11-21T20:00:00+01:00',
+
+  MAX_INTENTOS: 5,         // PIN fallidos seguidos antes de bloquear el nombre
   MINUTOS_BLOQUEO: 15,
   MAX_LIKES: 0,             // likes por persona; 0 = sin límite
   MAX_PARTICIPANTES: 200,   // freno contra registros masivos automáticos
@@ -42,6 +50,8 @@ const CONFIG_MATCH = {
 
 const HOJA_PART = 'Participants';
 const HOJA_LIKES = 'Likes';
+const HOJA_CONFIG = 'Config';
+const MODOS_APERTURA = ['AUTO', 'SI', 'NO'];
 const CABECERA_PART = ['id', 'nom', 'nom_normalitzat', 'salt', 'hash_pin', 'hash_sessio',
                        'intents_fallits', 'bloquejat_fins', 'creat'];
 // Los nombres van AL FINAL: el código lee las columnas por posición (0-3)
@@ -57,13 +67,24 @@ const RE_PIN = /^\d{4}$/;
 /* ---------- Punto de entrada (lo llama doPost de Code.gs) ---------- */
 
 function atenderMatch(p) {
+  const ss = SpreadsheetApp.openById(CONFIG_MATCH.SHEET_ID);
+
+  // Apertura: se decide con la hora DEL SERVIDOR (Date.now() aquí es la de
+  // Google), así que cambiar la hora del móvil o tocar el JS no sirve de nada.
+  const abierto = estaAbierto(ss);
+  const infoApertura = { apertura: CONFIG_MATCH.APERTURA || null, ahora: Date.now() };
+  // "apertura" es la única acción permitida con el Match cerrado: solo dice
+  // si está abierto y la hora del servidor (para corregir la cuenta atrás).
+  if (p.accion === 'apertura') return Object.assign({ ok: true, abierto: abierto }, infoApertura);
+  if (!abierto) return Object.assign({ ok: false, error: 'cerrado' }, infoApertura);
+
   // LockService: solo una petición del Match a la vez toca la Sheet.
   // Sin esto, dos registros simultáneos con el mismo nombre pasarían los dos,
   // o dos likes cruzados al mismo segundo no verían el match.
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(20000)) return { ok: false, error: 'ocupado' };
   try {
-    const bd = abrirBD();
+    const bd = abrirBD(ss);
     switch (p.accion) {
       case 'registro':   return registrar(bd, p);
       case 'entrar':     return entrar(bd, p);
@@ -219,9 +240,11 @@ function configurarMatch() {
   const ss = SpreadsheetApp.openById(CONFIG_MATCH.SHEET_ID);
   prepararHoja(ss, HOJA_PART, CABECERA_PART);
   prepararHoja(ss, HOJA_LIKES, CABECERA_LIKES);
+  prepararConfig(ss);
   pimienta();   // la crea si no existe
   rellenarNombresLikes();
-  console.log('OK. Hojas listas en "' + ss.getName() + '"');
+  console.log('OK. Hojas listas en "' + ss.getName() + '". Ahora mismo el Match está ' +
+    (estaAbierto(ss) ? 'ABIERTO' : 'CERRADO') + '.');
 }
 
 // 2) Borrar la cuenta de alguien (p. ej. si otra persona usó su nombre):
@@ -258,10 +281,43 @@ function rellenarNombresLikes() {
 }
 
 
+/* ---------- Apertura (hoja Config) ---------- */
+
+// Hoja "Config": A1 = FORZAR_APERTURA, B1 = AUTO | SI | NO (desplegable).
+//   AUTO → manda CONFIG_MATCH.APERTURA      SI → abierto ya      NO → cerrado
+// No sobrescribe B1 si ya tiene valor (se puede volver a ejecutar sin miedo).
+function prepararConfig(ss) {
+  const hoja = ss.getSheetByName(HOJA_CONFIG) || ss.insertSheet(HOJA_CONFIG);
+  hoja.getRange('A1').setValue('FORZAR_APERTURA').setFontWeight('bold');
+  const celda = hoja.getRange('B1');
+  if (!String(celda.getDisplayValue()).trim()) celda.setValue('AUTO');
+  celda.setDataValidation(SpreadsheetApp.newDataValidation()
+    .requireValueInList(MODOS_APERTURA, true).setAllowInvalid(false).build());
+  hoja.getRange('A3').setValue('AUTO = s\'obre a l\'hora de CONFIG_MATCH.APERTURA (' +
+    CONFIG_MATCH.APERTURA + ') · SI = obert ja · NO = tancat');
+  hoja.getRange('A3').setFontColor('#666666');
+}
+
+// Lee B1 de "Config". Si falta la hoja o el valor es raro → AUTO.
+function modoApertura(ss) {
+  const hoja = ss.getSheetByName(HOJA_CONFIG);
+  if (!hoja) return 'AUTO';
+  const v = String(hoja.getRange('B1').getDisplayValue()).trim().toUpperCase().replace('Í', 'I');
+  return MODOS_APERTURA.indexOf(v) >= 0 ? v : 'AUTO';
+}
+
+function estaAbierto(ss) {
+  const modo = modoApertura(ss);
+  if (modo === 'SI') return true;
+  if (modo === 'NO') return false;
+  return !CONFIG_MATCH.APERTURA || Date.now() >= new Date(CONFIG_MATCH.APERTURA).getTime();
+}
+
+
 /* ---------- Base de datos (Sheet) ---------- */
 
-function abrirBD() {
-  const ss = SpreadsheetApp.openById(CONFIG_MATCH.SHEET_ID);
+function abrirBD(ssAbierta) {
+  const ss = ssAbierta || SpreadsheetApp.openById(CONFIG_MATCH.SHEET_ID);
   const hp = ss.getSheetByName(HOJA_PART);
   const hl = ss.getSheetByName(HOJA_LIKES);
   if (!hp || !hl) throw new Error('Faltan las hojas: ejecuta configurarMatch()');

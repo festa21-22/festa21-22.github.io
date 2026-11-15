@@ -11,6 +11,7 @@
                    consulta periódica (deja la página abierta ~1 min)
      - Jordi Vila: nunca marca a nadie → like no recíproco
    Extra: match.html?demo&revelacion=2 → los matches se revelan dentro de 2 min.
+          match.html?demo&apertura=1   → "Sorpresa" cerrada que se abre en 1 min.
    Para empezar de cero: localStorage.removeItem('fiesta2122:match-demo')
    =========================================================================== */
 (function () {
@@ -31,6 +32,9 @@
     }
     var m = /[?&]revelacion=(\d+)/.exec(location.search);
     if (m && !bd.revelacion) bd.revelacion = new Date(Date.now() + m[1] * 60000).toISOString();
+    // ?demo&apertura=N → el Match está cerrado ("Sorpresa") hasta dentro de N minutos
+    var ap = /[?&]apertura=(\d+)/.exec(location.search);
+    if (ap && !bd.apertura) bd.apertura = new Date(Date.now() + ap[1] * 60000).toISOString();
     return bd;
   }
   function guardar(bd) { A.guardar(CLAVE, JSON.stringify(bd)); }
@@ -151,7 +155,12 @@
     var bd = cargar();
     var accion = acciones[p.accion];
     var res;
-    if (!accion) res = { ok: false, error: 'accion' };
+    // Igual que Match.gs: con el Match cerrado solo responde "apertura"
+    var abierto = !bd.apertura || Date.now() >= new Date(bd.apertura).getTime();
+    var info = { apertura: bd.apertura || null, ahora: Date.now() };
+    if (p.accion === 'apertura') res = Object.assign({ ok: true, abierto: abierto }, info);
+    else if (!abierto) res = Object.assign({ ok: false, error: 'cerrado' }, info);
+    else if (!accion) res = { ok: false, error: 'accion' };
     else if (p.accion === 'registro' || p.accion === 'entrar') res = accion(bd, p);
     else {
       var yo = bd.part.find(function (x) { return x.id === p.id; });

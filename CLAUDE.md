@@ -93,6 +93,17 @@ Orden de scripts (todos con `defer`): `data.js` → `storage.js` → `comun.js` 
 Maneja información sensible (a quién le gusta quién). Guía de despliegue y
 lista de pruebas: `apps-script/GUIA.md` (sección «Match de la festa»).
 
+- **Apertura («Sorpresa»):** hasta `CONFIG_MATCH.APERTURA` (sábado 21, 20:00)
+  el servidor rechaza **todas** las acciones con `cerrado`, usando **su** hora.
+  Interruptor en la hoja `Config` de la Sheet: B1 `FORZAR_APERTURA` =
+  `AUTO` (manda la hora) | `SI` | `NO`. Única acción permitida cerrada:
+  `apertura` → `{ok, abierto, apertura, ahora}` (`ahora` = hora del servidor,
+  el cliente corrige con ella la cuenta atrás). `data.js` → `match.apertura`
+  debe coincidir, pero solo se usa para pintar. Mientras está cerrado, la web
+  no dice qué es: menú «Sorpresa» con «?», títulos genéricos en el HTML
+  (match.js pone los de verdad al abrir; `comun.js` → `Comun.menuMatch`).
+  Consultas de apertura: cada 5 min, al llegar a 0 (+ 0–3 s al azar) y luego
+  cada minuto; siempre solo con la página visible.
 - **Toda la lógica sensible en el servidor** (`Match.gs`): comprobar PIN,
   guardar likes, calcular matches, hora de revelación, bloqueo, validación.
   El cliente nunca calcula matches ni recibe datos ajenos.
@@ -129,7 +140,8 @@ lista de pruebas: `apps-script/GUIA.md` (sección «Match de la festa»).
   `estado` → `{yo, participantes, likes, matches, nuevos, revelado, revelacion, maxLikes}`;
   `like` → `{ok, match: {id, nombre} | null}`. Errores: `nombre`, `pin`,
   `nombre_ocupado`, `credenciales` (+`quedan`), `bloqueado` (+`minutos`),
-  `sesion`, `no_existe`, `limite`, `lleno`, `ocupado`, `accion`, `datos`, `clave`.
+  `sesion`, `no_existe`, `limite`, `lleno`, `ocupado`, `accion`, `datos`, `clave`,
+  `cerrado` (+`apertura`, `ahora`).
   Si cambias el contrato, cambia `Match.gs`, `match.js` y `match-demo.js` a la vez.
 
 ## Estilo de código
@@ -155,7 +167,7 @@ lista de pruebas: `apps-script/GUIA.md` (sección «Match de la festa»).
 - Probar siempre en vista móvil (375×812) y comprobar la consola sin errores.
 - Re-sortear para pruebas: abrir `reto.html?reset` (o `localStorage.clear()` en la consola).
 - Match sin backend: `http://localhost:8080/match.html?demo` (participantes falsos;
-  `&revelacion=2` simula revelación en 2 min). Con backend real: lista de pruebas en `apps-script/GUIA.md`.
+  `&revelacion=2` simula revelación en 2 min; `&apertura=1` Sorpresa que se abre en 1 min). Con backend real: lista de pruebas en `apps-script/GUIA.md`.
 
 ## Git
 

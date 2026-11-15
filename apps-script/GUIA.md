@@ -240,3 +240,64 @@ Al terminar, bórralos con `borrarCuentaManual` o dándolos de baja.
 | 16 | `borrarCuentaManual` con el nombre de B | Igual que la baja |
 
 Recuerda devolver `REVELACION` a su valor y publicar versión nueva tras la prueba 12.
+
+---
+
+## Apertura del Match («Sorpresa» hasta el sábado a las 20:00)
+
+Hasta `CONFIG_MATCH.APERTURA` el Match sale en la web como **Sorpresa** (menú
+con «?», cuenta atrás, sin decir qué es) y **el servidor rechaza todo**
+(registro, entrar, likes, consultas) con el error `cerrado`. La hora la mira el
+servidor con **su propio reloj**: cambiar la hora del móvil o tocar el JS con
+F12 no sirve de nada. La única acción que responde con el Match cerrado es
+`apertura`, que solo dice si está abierto y la hora del servidor.
+
+La fecha está en **dos sitios** y deben coincidir:
+- `data.js` → `match.apertura`: solo para la cuenta atrás de la web.
+- `Match.gs` → `CONFIG_MATCH.APERTURA`: la que manda de verdad.
+
+### El interruptor: hoja `Config` de la Sheet
+
+`configurarMatch` crea una pestaña **Config** con un desplegable en **B1**:
+
+| `FORZAR_APERTURA` (B1) | Qué pasa |
+|---|---|
+| `AUTO` (por defecto) | Se abre solo a la hora de `CONFIG_MATCH.APERTURA` |
+| `SI` | Abierto **ya**, aunque no sea la hora |
+| `NO` | Cerrado, aunque ya haya pasado la hora |
+
+Se cambia desde la app de Sheets en el móvil, **sin publicar versión nueva**:
+el servidor lee la celda en cada petición, así que el efecto es inmediato.
+En la web:
+- Con la página abierta y la cuenta atrás en marcha, comprueba cada 5 min (solo
+  si está visible), así que un `SI` antes de hora se nota en ≤ 5 min (o al recargar).
+- Al llegar a 0 pregunta al servidor: si dice abierto, animación de revelación;
+  si sigue cerrado (`NO`), sale «Encara no s'ha obert…» y vuelve a preguntar cada minuto.
+- Con `NO` estando ya abierto, a la siguiente acción (o consulta de 45 s)
+  la página vuelve sola a la Sorpresa.
+
+Ejemplos: queréis abrirlo a las 19:30 porque ya ha llegado todo el mundo →
+`SI`. Algo va mal y queréis pararlo → `NO`. Después, vuelve a `AUTO`.
+
+### Qué hay que actualizar en Apps Script
+
+1. Sustituye `Match.gs` por el nuevo. **Vuelve a poner tu `SHEET_ID`.**
+   Comprueba `APERTURA: '2026-11-21T20:00:00+01:00'`. `Código.gs` no cambia.
+2. **Ctrl+S** → ejecuta **`configurarMatch`** (crea la pestaña `Config` con
+   `AUTO`). El registro dice si ahora mismo está ABIERTO o CERRADO.
+3. **Implementar → Gestionar implementaciones → ✏️ → Versión: Nueva versión → Implementar.**
+
+### Pruebas de la apertura
+
+| # | Prueba | Resultado esperado |
+|---|---|---|
+| A1 | Antes de la hora, con `AUTO`, abrir `match.html` | Sorpresa con cuenta atrás; menú «Sorpresa» con «?»; título de pestaña «Sorpresa» |
+| A2 | Cambiar la hora del móvil a después del sábado 20:00 y recargar | Sigue la Sorpresa (la cuenta atrás usa la hora del servidor) |
+| A3 | Saltarse la web: F12 → Red, copiar una petición al `/exec` y cambiar `accion` a `registro` (o enviarla con `fetch` desde la Consola) | `{"ok":false,"error":"cerrado"}` |
+| A4 | Poner `SI` con la página abierta | En ≤ 5 min (o al recargar) se abre, con animación |
+| A5 | Ya abierto y con sesión, poner `NO` y dar un like | Vuelve a la Sorpresa; el like no se guarda |
+| A6 | Volver a `AUTO` | Abierto (si ya es la hora) o Sorpresa |
+| A7 | Para ver la revelación sin esperar: `APERTURA` a dentro de 3 min + versión nueva, página abierta | Al llegar a 0: «?» gira, se convierte en corazón, confeti y aparece el formulario |
+
+Después de A7, devuelve `APERTURA` a `'2026-11-21T20:00:00+01:00'` y publica otra versión.
+En local sin backend: `http://localhost:8080/match.html?demo&apertura=1` (se abre en 1 min).

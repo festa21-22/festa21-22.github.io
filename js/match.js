@@ -15,6 +15,15 @@
 
    Peticiones: POST con Content-Type text/plain, igual que upload.js, para
    evitar el preflight CORS que Apps Script no soporta.
+
+   Apertura: hasta FIESTA.match.apertura la página es una "Sorpresa" con
+   cuenta atrás. Quien decide si está abierto es el SERVIDOR (acción
+   "apertura", con su propia hora y la hoja Config de la Sheet); aquí solo se
+   pinta. El servidor también devuelve su hora ("ahora"): con ella corregimos
+   la cuenta atrás si el reloj del móvil va adelantado o atrasado.
+   Con el Match cerrado se pregunta al servidor cada 5 min (por si lo abren
+   antes con FORZAR_APERTURA = SI), justo al llegar a 0, y luego cada minuto
+   si todavía no se ha abierto. Siempre solo con la página visible.
    =========================================================================== */
 (function () {
   'use strict';
@@ -48,9 +57,30 @@
   var ultimaConsulta = 0;
   var consultando = false;
 
+  // Apertura
+  var SORPRESA = cfg.sorpresa || {};
+  var abierto = false;
+  var aperturaMs = cfg.apertura ? new Date(cfg.apertura).getTime() : 0;
+  var desfase = 0;             // hora del servidor − hora del móvil (ms)
+  var relojCuenta = null;      // setInterval de la cuenta atrás (solo pinta)
+  var temporizadorApertura = null;
+  var CADA_CERRADO = 5 * 60 * 1000;   // preguntar con la cuenta atrás en marcha
+  var CADA_ESPERA = 60 * 1000;        // preguntar si ya pasó la hora y sigue cerrado
+
+  function ahora() { return Date.now() + desfase; }
+
   /* ---------- Comunicación con el servidor ---------- */
 
+  // Si el servidor dice "cerrado" (p. ej. lo han cerrado a mano con
+  // FORZAR_APERTURA = NO), volvemos a la sorpresa estemos donde estemos.
   function llamar(accion, extra) {
+    return enviar(accion, extra).then(function (r) {
+      if (r && r.error === 'cerrado' && abierto) cerrar(r);
+      return r;
+    });
+  }
+
+  function enviar(accion, extra) {
     var cuerpo = Object.assign({ clave: cfgSubida.clave || '', accion: accion }, extra || {});
     // Todas las acciones salvo registro/entrar se identifican con id + token
     if (sesion && accion !== 'registro' && accion !== 'entrar') { cuerpo.id = sesion.id; cuerpo.token = sesion.token; }
@@ -96,12 +126,13 @@
     limite: 'Has arribat al màxim de persones que pots marcar.',
     lleno: 'La llista està plena. Avisa l\'organització.',
     ocupado: 'El servidor està molt ocupat ara mateix. Torna-ho a provar en uns segons.',
+    cerrado: '',   // no hace falta mensaje: la página vuelve a la sorpresa
     servidor: 'Hi ha hagut un error al servidor. Torna-ho a provar.'
   };
 
   function textoError(r) {
     var codigo = (r && r.error) || 'servidor';
-    var t = MENSAJES[codigo] || MENSAJES.servidor;
+    var t = MENSAJES.hasOwnProperty(codigo) ? MENSAJES[codigo] : MENSAJES.servidor;
     if (codigo === 'credenciales' && r.quedan) {
       t += r.quedan === 1 ? ' Et queda 1 intent.' : ' Et queden ' + r.quedan + ' intents.';
     }
@@ -211,10 +242,13 @@
   /* ---------- Vista: dentro ---------- */
 
   function verVista(cual) {
+    $('vistaSorpresa').hidden = cual !== 'sorpresa';
     $('vistaAcceso').hidden = cual !== 'acceso';
     $('vistaDentro').hidden = cual !== 'dentro';
     $('cargando').hidden = cual !== 'cargando';
-    // "Com funciona" abierto para quien aún no ha entrado; plegado dentro
+    // Con la sorpresa no se explica nada; "Com funciona" abierto para quien
+    // aún no ha entrado y plegado dentro
+    $('como').hidden = cual === 'sorpresa' || cual === 'cargando';
     $('como').open = cual === 'acceso';
   }
 
@@ -233,6 +267,7 @@
       .then(function (r) {
         consultando = false;
         if (!r.ok) {
+          if (r.error === 'cerrado') return;   // llamar() ya ha vuelto a la sorpresa
           if (r.error === 'sesion') return salirLocal(MENSAJES.sesion);
           if (primeraVez) {
             // Sin conexión al entrar: volvemos al formulario con el aviso
@@ -424,14 +459,18 @@
   // cuando acaba la anterior, así nunca se solapan si el servidor va lento.
   function programar() {
     clearTimeout(temporizador);
-    if (!sesion || document.visibilityState !== 'visible') return;
+    if (!abierto || !sesion || document.visibilityState !== 'visible') return;
     var espera = Math.max(0, INTERVALO - (Date.now() - ultimaConsulta));
     temporizador = setTimeout(function () { consultar(false); }, espera);
   }
 
   // Al volver a la pestaña: si han pasado 45 s desde la última, consulta ya;
   // si no, espera lo que falte. Al irse a segundo plano: se para.
-  document.addEventListener('visibilitychange', programar);
+  // (Lo mismo para la comprobación de apertura mientras está cerrado.)
+  document.addEventListener('visibilitychange', function () {
+    programar();
+    programarApertura();
+  });
 
   /* ---------- Animación de match ---------- */
 
@@ -499,23 +538,173 @@
     }
   }
 
+  /* ---------- Apertura: sorpresa, cuenta atrás y revelación ---------- */
+
+  // Títulos de la página según esté abierto o no (textos de data.js)
+  function pintarTitulos(siAbierto) {
+    var titulo = siAbierto ? (cfg.titulo || 'Match de la festa') : (SORPRESA.titulo || 'Sorpresa');
+    $('titulo').textContent = titulo;
+    $('h-match').textContent = titulo;
+    $('subtitulo').textContent = siAbierto ? (cfg.subtitulo || '') : '';
+    document.title = titulo + ' · FESTA 21–22 novembre';
+    C.menuMatch(siAbierto, true);
+  }
+
+  function mostrarSorpresa() {
+    abierto = false;
+    pintarTitulos(false);
+    verVista('sorpresa');
+    $('sorpresaMensaje').textContent = SORPRESA.mensaje || '';
+    reiniciarCuenta();
+  }
+
+  // (Re)arranca la cuenta atrás; se llama también cuando el servidor corrige la hora
+  function reiniciarCuenta() {
+    if (aperturaMs) {
+      var iso = new Date(aperturaMs).toISOString();
+      $('sorpresaFecha').textContent = C.capital(C.diaLargo(iso)) + ' · ' + C.hora(iso) + ' h';
+    }
+    clearInterval(relojCuenta);
+    pintarCuenta();
+    relojCuenta = setInterval(pintarCuenta, 1000);
+  }
+
+  function falta() { return aperturaMs ? aperturaMs - ahora() : 0; }
+
+  // Solo pinta. Al llegar a 0 pregunta al servidor (no se abre por su cuenta).
+  function pintarCuenta() {
+    var resto = Math.max(0, falta());
+    var s = Math.floor(resto / 1000);
+    var partes = { d: Math.floor(s / 86400), h: Math.floor(s / 3600) % 24, m: Math.floor(s / 60) % 60, s: s % 60 };
+    $('sorpresaCuenta').querySelectorAll('[data-u]').forEach(function (n) {
+      n.textContent = String(partes[n.getAttribute('data-u')]).padStart(2, '0');
+    });
+    if (resto === 0 && !abierto) {
+      clearInterval(relojCuenta);
+      if (!URL_SCRIPT) return abrir(true);   // sin servidor no hay a quién preguntar
+      // Ha pasado la hora pero el servidor aún no lo ha confirmado
+      if (!temporizadorApertura) programarApertura();
+    }
+  }
+
+  // Cuándo volver a preguntar al servidor si ya está abierto
+  function programarApertura() {
+    clearTimeout(temporizadorApertura);
+    temporizadorApertura = null;
+    if (abierto || !URL_SCRIPT || document.visibilityState !== 'visible') return;
+    var resto = falta();
+    var espera;
+    if (resto > 0) {
+      // Justo al llegar a 0 (+ hasta 3 s al azar: que no pregunten los 50 móviles
+      // en el mismo milisegundo), o cada 5 min por si lo abren antes a mano
+      espera = Math.min(resto + Math.random() * 3000, CADA_CERRADO);
+    } else {
+      espera = Math.random() * 3000;
+      // Si ya preguntamos tras la hora y seguía cerrado, cada minuto
+      if ($('sorpresaEspera').textContent) espera = CADA_ESPERA;
+    }
+    temporizadorApertura = setTimeout(function () { comprobarApertura(true); }, espera);
+  }
+
+  // Pregunta al servidor. animar = true si la página ya estaba abierta (en
+  // directo); false al cargar (si ya está abierto, entra sin animación).
+  function comprobarApertura(animar) {
+    temporizadorApertura = null;
+    enviar('apertura')
+      .catch(comoRespuesta)
+      .then(function (r) {
+        if (r.ok && typeof r.ahora === 'number') {
+          desfase = r.ahora - Date.now();
+          if (r.apertura) aperturaMs = new Date(r.apertura).getTime();
+        }
+        if (r.ok && r.abierto) return abrir(animar && !$('vistaSorpresa').hidden);
+        if (r.ok) {
+          // Cerrado: cuenta atrás (con la hora del servidor) o "encara no"
+          if ($('vistaSorpresa').hidden) mostrarSorpresa();
+          else reiniciarCuenta();
+          mostrar($('sorpresaEspera'), falta() > 0 ? '' : (SORPRESA.noEncara || ''));
+        } else if ($('vistaSorpresa').hidden && falta() > 0) {
+          // Sin conexión y según el reloj del móvil aún no toca: sorpresa
+          mostrarSorpresa();
+        } else if ($('vistaSorpresa').hidden) {
+          // Sin conexión y ya debería estar abierto: seguimos como siempre
+          // (las peticiones del Match darán el error de conexión)
+          return abrir(false);
+        }
+        programarApertura();
+      });
+  }
+
+  function abrir(animar) {
+    abierto = true;
+    clearInterval(relojCuenta);
+    clearTimeout(temporizadorApertura);
+    temporizadorApertura = null;
+    if (animar && !sinMovimiento) revelar(iniciarMatch);
+    else iniciarMatch();
+  }
+
+  // Animación: el "?" gira y se convierte en un corazón, confeti y aparece el Match
+  function revelar(fin) {
+    var caja = $('vistaSorpresa');
+    $('sorpresaEspera').hidden = true;
+    caja.classList.add('sorpresa--revelando');
+    setTimeout(confeti, 900);
+    var activa = !navigator.userActivation || navigator.userActivation.hasBeenActive;
+    if (navigator.vibrate && activa) navigator.vibrate([30, 60, 30, 60, 120]);
+    setTimeout(function () {
+      caja.classList.remove('sorpresa--revelando');
+      fin();
+      var seccion = $('match');
+      seccion.classList.add('seccion--entra');
+      setTimeout(function () { seccion.classList.remove('seccion--entra'); }, 900);
+    }, 2200);
+  }
+
+  // Cerrado otra vez desde el servidor (FORZAR_APERTURA = NO con la web abierta)
+  function cerrar(r) {
+    abierto = false;
+    clearTimeout(temporizador);
+    if (r && typeof r.ahora === 'number') desfase = r.ahora - Date.now();
+    if (r && r.apertura) aperturaMs = new Date(r.apertura).getTime();
+    $('pantallaMatch').hidden = true;
+    document.body.classList.remove('sin-scroll');
+    mostrarSorpresa();
+    mostrar($('sorpresaEspera'), falta() > 0 ? '' : (SORPRESA.noEncara || ''));
+    programarApertura();
+  }
+
   /* ---------- Arranque ---------- */
+
+  // Lo de siempre: entrar o registrarse (solo con el Match abierto)
+  function iniciarMatch() {
+    pintarTitulos(true);
+    mostrar($('sorpresaEspera'), '');
+    if (!URL_SCRIPT) {
+      $('avisoConfig').hidden = false;
+      verVista('acceso');
+      $('btnAcceso').disabled = true;
+      return;
+    }
+    cambiarModo(false);
+    sesion = sesion || leerSesion();
+    if (sesion) cargarEstado(true);
+    else verVista('acceso');
+  }
 
   (cfg.explicacion || []).forEach(function (t) { $('comoLista').appendChild(el('li', null, t)); });
   if (!A.disponible) $('avisoAlmacen').hidden = false;
   if (MODO_DEMO) $('avisoDemo').hidden = false;
 
   if (!URL_SCRIPT) {
-    $('avisoConfig').hidden = false;
-    verVista('acceso');
-    $('btnAcceso').disabled = true;
-    return;
+    // Sin servidor configurado: solo la hora del móvil (no hay nada que proteger)
+    if (falta() > 0) mostrarSorpresa(); else abrir(false);
+  } else {
+    // Mientras responde el servidor: sorpresa si por el reloj del móvil aún no
+    // toca, o "Carregant…" si ya debería estar abierto
+    if (falta() > 0) mostrarSorpresa(); else verVista('cargando');
+    comprobarApertura(false);
   }
-
-  cambiarModo(false);
-  sesion = leerSesion();
-  if (sesion) cargarEstado(true);
-  else verVista('acceso');
 
   C.irAlAncla();
 })();

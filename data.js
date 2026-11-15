@@ -219,6 +219,25 @@ window.FIESTA = {
          (El código no deja bajar de 45 aunque pongas menos.)
      Para probar sin backend en tu ordenador: http://localhost:8080/match.html?demo  */
   match: {
+    // Hasta esta hora el Match sale como "Sorpresa" con cuenta atrás.
+    // ⚠️ Debe coincidir con CONFIG_MATCH.APERTURA de Match.gs: aquí solo
+    //    sirve para la cuenta atrás; quien abre o no es el SERVIDOR (y su
+    //    hoja "Config" → FORZAR_APERTURA = AUTO / SI / NO).
+    apertura: "2026-11-21T20:00:00+01:00",
+
+    // Textos mientras está cerrado (no dicen qué es)
+    sorpresa: {
+      menu: "Sorpresa",
+      titulo: "Sorpresa",
+      mensaje: "Aquí hi ha alguna cosa amagada. S'obrirà quan comenci la festa.",
+      noEncara: "Encara no s'ha obert. Torna-ho a provar d'aquí a una estona."
+    },
+
+    // Textos cuando ya está abierto
+    menu: "Match",
+    titulo: "Match de la festa",
+    subtitulo: "Marca qui t'agrada. Si és mutu, és un match.",
+
     segundosConsulta: 45,
     // Texto "Com funciona": un párrafo por línea
     explicacion: [

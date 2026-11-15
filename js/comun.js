@@ -178,12 +178,39 @@
     }
   }
 
+  /* ---------- Menú: "Sorpresa" → "Match" ---------- */
+  // El HTML trae "Sorpresa" por defecto. Aquí se decide con la hora del MÓVIL,
+  // que solo afecta a la etiqueta del menú (estético): el que de verdad abre
+  // o no el Match es el servidor. En match.html, match.js llama a
+  // menuMatch(abierto, true) con la respuesta del servidor y eso manda.
+  var M = F.match || {};
+  var menuFijado = false;
+
+  function menuMatch(abierto, desdeServidor) {
+    if (desdeServidor) menuFijado = true;
+    document.querySelectorAll('.nav__item--match').forEach(function (a) {
+      a.classList.toggle('nav__item--abierto', abierto);
+      var t = a.querySelector('.nav__texto');
+      if (t) t.textContent = abierto ? (M.menu || 'Match') : ((M.sorpresa && M.sorpresa.menu) || 'Sorpresa');
+    });
+  }
+
+  function iniciarMenuMatch() {
+    var falta = M.apertura ? new Date(M.apertura).getTime() - Date.now() : 0;
+    menuMatch(!(falta > 0));
+    // Si la página sigue abierta a la hora, cambia sola (setTimeout admite ~24 días)
+    if (falta > 0 && falta < 2147483647) {
+      setTimeout(function () { if (!menuFijado) menuMatch(true); }, falta);
+    }
+  }
+
   window.Comun = {
     $: $, el: el, fmt: fmt, hora: hora, diaLargo: diaLargo, capital: capital, hoyMadrid: hoyMadrid,
-    irAlAncla: irAlAncla
+    irAlAncla: irAlAncla, menuMatch: menuMatch
   };
 
   pintarCampos();
   decorar();
   iniciarObservadores();
+  iniciarMenuMatch();
 })();

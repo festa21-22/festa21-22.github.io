@@ -3,13 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Match de la festa · FESTA 21–22 novembre</title>
-  <meta name="description" content="Marca qui t'agrada. Si és mutu, és un match.">
+  <!-- Títulos genéricos: hasta la apertura es una sorpresa (match.js los cambia al abrir).
+       Ojo: quien lea el código fuente sí puede saber qué es; lo que de verdad
+       impide usarlo antes de hora es el servidor. -->
+  <title>Sorpresa · FESTA 21–22 novembre</title>
+  <meta name="description" content="Una sorpresa per a la festa.">
   <meta name="theme-color" content="#0b1028">
   <meta name="robots" content="noindex, nofollow">
 
-  <meta property="og:title" content="Match de la festa · FESTA 21–22 novembre">
-  <meta property="og:description" content="Marca qui t'agrada. Si és mutu, és un match.">
+  <meta property="og:title" content="Sorpresa · FESTA 21–22 novembre">
+  <meta property="og:description" content="Una sorpresa per a la festa.">
   <meta property="og:type" content="website">
 
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
@@ -30,7 +33,7 @@
 </head>
 <body>
 
-<a class="saltar" href="#match">Salta al Match</a>
+<a class="saltar" href="#match">Salta al contingut</a>
 
 <!-- =================================================== CABECERA -->
 <header class="cabecera">
@@ -38,13 +41,34 @@
   <svg class="guirnalda-top" id="guirnaldaTop" viewBox="0 0 400 70" aria-hidden="true"></svg>
 
   <a class="cabecera__marca" href="index.html" data-campo="nombre" data-nombre>FESTA</a>
-  <h1 class="cabecera__titulo">Match de la festa</h1>
-  <p class="cabecera__texto">Marca qui t'agrada. Si és mutu, és un match.</p>
+  <!-- Textos de FIESTA.match (sorpresa.* mientras está cerrado; titulo/subtitulo al abrir) -->
+  <h1 class="cabecera__titulo" id="titulo">Sorpresa</h1>
+  <p class="cabecera__texto" id="subtitulo"></p>
 </header>
 
 <main>
   <section id="match" class="seccion seccion--match" aria-labelledby="h-match">
-    <h2 class="sr-only" id="h-match">Match de la festa</h2>
+    <h2 class="sr-only" id="h-match">Sorpresa</h2>
+
+    <!-- ============ Cerrado: sorpresa con cuenta atrás ============ -->
+    <div class="sorpresa" id="vistaSorpresa" hidden>
+      <div class="sorpresa__icono" aria-hidden="true">
+        <svg class="sorpresa__interrogante" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.4c-.6.3-1 .8-1 1.5v.6M12 16.8h.01"/></svg>
+        <svg class="sorpresa__cor" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-7.5-10.6A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.7c0 6-7.5 10.6-7.5 10.6z"/></svg>
+      </div>
+      <p class="sorpresa__mensaje" id="sorpresaMensaje"></p>
+      <div class="cuenta sorpresa__cuenta" id="sorpresaCuenta">
+        <p class="cuenta__titulo">S'obre d'aquí a</p>
+        <div class="cuenta__cajas">
+          <div class="caja"><span class="caja__num" data-u="d">--</span><span class="caja__lbl">dies</span></div>
+          <div class="caja"><span class="caja__num" data-u="h">--</span><span class="caja__lbl">hores</span></div>
+          <div class="caja"><span class="caja__num" data-u="m">--</span><span class="caja__lbl">min</span></div>
+          <div class="caja"><span class="caja__num" data-u="s">--</span><span class="caja__lbl">seg</span></div>
+        </div>
+        <p class="cuenta__fecha" id="sorpresaFecha"></p>
+      </div>
+      <p class="sorpresa__espera" id="sorpresaEspera" role="status" hidden></p>
+    </div>
 
     <p class="aviso aviso--demo" id="avisoDemo" hidden>
       <strong>Mode de prova:</strong> dades simulades en aquest navegador, no s'envia res.
@@ -54,7 +78,7 @@
     </p>
 
     <!-- Cómo funciona: los párrafos salen de FIESTA.match.explicacion -->
-    <details class="como tarjeta" id="como" open>
+    <details class="como tarjeta" id="como" open hidden>
       <summary>Com funciona</summary>
       <ul class="como__lista" id="comoLista"></ul>
     </details>
@@ -189,9 +213,11 @@
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v12H4z"/><circle cx="12" cy="13.5" r="3.5"/></svg>
     <span>Puja</span>
   </a>
-  <a class="nav__item" href="#match" data-seccion="match">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.6A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.7c0 6-7.5 10.6-7.5 10.6z"/></svg>
-    <span>Match</span>
+  <a class="nav__item nav__item--match" href="#match" data-seccion="match">
+    <!-- Dos iconos: comun.js pone .nav__item--abierto cuando el Match se abre (antes: Sorpresa) -->
+    <svg class="nav__icono-sorpresa" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.4c-.6.3-1 .8-1 1.5v.6M12 16.8h.01"/></svg>
+    <svg class="nav__icono-match" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.6A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.7c0 6-7.5 10.6-7.5 10.6z"/></svg>
+    <span class="nav__texto">Sorpresa</span>
   </a>
 </nav>
 
