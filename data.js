@@ -127,15 +127,15 @@ window.FIESTA = {
 
   /* ---------- RETOS (3 dificultades) ----------
      Cada persona elige UNA dificultad (definitiva) y la ruleta le sortea un
-     número del 1 al 10 dentro de esa lista. En su móvil se guarda la
+     número del 1 al total de esa lista. En su móvil se guarda la
      DIFICULTAD y el NÚMERO (posición en la lista, empezando en 1), nunca el
      texto. Por eso:
        ✅ Puedes cambiar el TEXTO de un reto cuando quieras: quien tenga ese
           número verá el texto nuevo.
        ⚠️  NO reordenes ni borres retos una vez repartidos: cambiarías el
            reto de quien ya lo tenga.
-       ⚠️  Cada lista tiene 10 retos. Si añades más, añádelos al FINAL
-           (la ruleta usa el tamaño de cada lista).
+       ⚠️  Las listas pueden tener tamaños distintos (la ruleta usa la
+           longitud de cada una). Si añades más, añádelos al FINAL.
      Las claves facil / medio / dificil NO se cambian (se usan en el código
      y en el nombre del archivo en Drive). El nombre visible está en
      "nombresDificultad".                                                    */
@@ -163,44 +163,55 @@ window.FIESTA = {
   retos: {
     // 🟢 FÀCIL
     facil: [
-      "Repte fàcil 1",    // 01
-      "Repte fàcil 2",    // 02
-      "Repte fàcil 3",    // 03
-      "Repte fàcil 4",    // 04
-      "Repte fàcil 5",    // 05
-      "Repte fàcil 6",    // 06
-      "Repte fàcil 7",    // 07
-      "Repte fàcil 8",    // 08
-      "Repte fàcil 9",    // 09
-      "Repte fàcil 10"    // 10
+      "Fes-te una foto amb una peça de roba d'una altra persona",                       // 01
+      "Pregunta a 10 persones a qui votaran a les eleccions",                           // 02
+      "Fes una foto de 10 peus diferents",                                              // 03
+      "Fes 5 fotos de gent dormint",                                                    // 04
+      "Fes una piràmide humana",                                                        // 05
+      "Ensenya el teu millor pas de ball",                                              // 06
+      "Intercanvia les sabates amb algú del sexe oposat",                               // 07
+      "Canta la cançó «Oh me vengo» de Faraón Love Shady",                              // 08
+      "Fes una foto a algú i edita-la amb IA",                                          // 09
+      "Recrea una escena d'una pel·lícula amb més persones",                            // 10
+      "Fes-te una foto amb algú verge",                                                 // 11
+      "Fes un vídeo imitant un animal",                                                 // 12
+      "Fes un vídeo imitant un famós",                                                  // 13
+      "Fes un vídeo imitant algú de la festa",                                          // 14
+      "Fes un vídeo parlant amb un altre accent",                                       // 15
+      "Dobla la conversa d'altres persones: grava-les de lluny i parla tu per elles",   // 16
+      "Fes un tutorial de com fer un tutorial",                                         // 17
+      "Grava un tutorial de com seure en una cadira, amb els errors més comuns"         // 18
     ],
 
     // 🟡 MITJÀ
     medio: [
-      "Repte mitjà 1",    // 01
-      "Repte mitjà 2",    // 02
-      "Repte mitjà 3",    // 03
-      "Repte mitjà 4",    // 04
-      "Repte mitjà 5",    // 05
-      "Repte mitjà 6",    // 06
-      "Repte mitjà 7",    // 07
-      "Repte mitjà 8",    // 08
-      "Repte mitjà 9",    // 09
-      "Repte mitjà 10"    // 10
+      "Pinta-li la cara a algú (hi ha retoladors a la casa)",                           // 01
+      "Maquilla algú",                                                                  // 02
+      "Fes una esmaixada a la cistella",                                                // 03
+      "Fes-te un pico amb algú",                                                        // 04
+      "Desperta algú fent molt de soroll",                                              // 05
+      "Fes una conga de 30 persones",                                                   // 06
+      "Aconsegueix que dues persones facin una petita coreografia de ball amb tu",      // 07
+      "Organitza un casament entre dues persones (s'han de fer un petó)",               // 08
+      "Fes-te una foto amb 4 persones que no es coneguin entre elles",                  // 09
+      "Troba l'aneguet de goma amagat a la casa"                                        // 10
     ],
 
     // 🔴 DIFÍCIL
     dificil: [
-      "Repte difícil 1",  // 01
-      "Repte difícil 2",  // 02
-      "Repte difícil 3",  // 03
-      "Repte difícil 4",  // 04
-      "Repte difícil 5",  // 05
-      "Repte difícil 6",  // 06
-      "Repte difícil 7",  // 07
-      "Repte difícil 8",  // 08
-      "Repte difícil 9",  // 09
-      "Repte difícil 10"  // 10
+      "Banya't al riu (encara que sigui una mica)",                                     // 01
+      "Fes-te un pico amb algú del sexe oposat",                                        // 02
+      "Fes veure que et desmaies per l'alcohol",                                        // 03
+      "Enfila't a un arbre",                                                            // 04
+      "Fes-te una foto amb un animal",                                                  // 05
+      "Lliga algú a alguna cosa amb una brida (hi ha brides a la casa)",                // 06
+      "Canta el Cara al Sol amb la mà al pit",                                          // 07
+      "Dutxa't amb roba",                                                               // 08
+      "Truca a la teva mare o al teu pare i digues-li que estàs embarassada (o que has deixat embarassada una noia, si ets noi)", // 09
+      "Penja a Instagram una història amb la foto d'un peu i deixa-la 24 hores",        // 10
+      "Penja una història dient que deixes les xarxes (i deixa-la 24 hores)",           // 11
+      "Truca a la teva mare o al teu pare i digues-li que has canviat d'orientació sexual", // 12
+      "Troba la creu del bosc"                                                          // 13
     ]
   },
 

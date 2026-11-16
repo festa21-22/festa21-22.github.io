@@ -40,7 +40,7 @@ y configuración de la subida. No hace falta tocar nada más.
 Reglas importantes:
 
 - **Fechas** en formato `"2026-11-21T17:00:00+01:00"` (el `+01:00` es la hora de invierno de España).
-- **Retos:** hay 3 listas (`facil`, `medio`, `dificil`) de 10 retos. Cada persona
+- **Retos:** hay 3 listas (`facil`, `medio`, `dificil`) de tamaño libre (ahora 18/10/13; la ruleta usa la longitud de cada una). Cada persona
   elige una dificultad (definitiva) y se le guarda la **dificultad y el número**
   de su reto, no el texto. Puedes cambiar los textos cuando quieras, pero
   **no reordenes ni borres retos** una vez repartidos; para añadir, al final.

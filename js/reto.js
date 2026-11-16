@@ -7,7 +7,7 @@
       - Si hay uno válido → ese es tu reto, siempre (sin botones ni ruleta si
         ya lo viste).
       - Si no → se enseñan los 3 botones de dificultad. Al elegir uno y
-        confirmar, se sortea un número 1..10 de esa lista y se GUARDA AL
+        confirmar, se sortea un número 1..N de esa lista (N = su longitud) y se GUARDA AL
         MOMENTO (antes de la animación): recargar a mitad no permite volver a
         elegir dificultad ni re-sortear.
    2. Se guarda la DIFICULTAD y el NÚMERO, no el texto. El texto se busca en
