@@ -202,7 +202,7 @@ window.FIESTA = {
       "Banya't al riu (encara que sigui una mica)",                                     // 01
       "Fes-te un pico amb algú del sexe oposat",                                        // 02
       "Fes veure que et desmaies per l'alcohol",                                        // 03
-      "Enfila't a un arbre",                                                            // 04
+      "Escala un arbre",                                                               // 04
       "Fes-te una foto amb un animal",                                                  // 05
       "Lliga algú a alguna cosa amb una brida (hi ha brides a la casa)",                // 06
       "Canta el Cara al Sol amb la mà al pit",                                          // 07
