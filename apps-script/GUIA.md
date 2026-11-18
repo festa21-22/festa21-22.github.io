@@ -128,7 +128,7 @@ Móvil ──POST {accion:"like",...}──▶ doPost (Code.gs) ──▶ atende
 
 | Quién | Qué ve |
 |---|---|
-| Invitado (web, también con F12) | Nombres de participantes, **sus** likes, **sus** matches. Nunca quién le ha marcado si no es mutuo. |
+| Invitado (web, también con F12) | Nombres de participantes, **sus** likes, **sus** matches y **cuántos** likes ha recibido (solo el número, al entrar o recargar). Nunca quién le ha marcado si no es mutuo, ni los números de los demás. |
 | Organizadores (dueños de la Sheet) | Todo: participantes y likes (con ids y nombres). |
 | Nadie | El PIN: solo se guarda `SHA-256(pimienta + salt + PIN)`. |
 
@@ -186,15 +186,33 @@ revelación dentro de 2 minutos. Solo funciona en localhost.
 
 ## Tareas de organizadores
 
-**Alguien ha registrado un nombre que no es el suyo** (o alguien olvidó su PIN):
-- Recomendado: en `Match.gs`, función `borrarCuentaManual`, cambia `'Nom Cognom'`
-  por el nombre y **Ejecutar**. Borra la cuenta y todos sus likes (dados y recibidos).
-- A mano: en la pestaña **Participants**, clic derecho en el número de su fila →
-  **Eliminar fila**. Sus likes quedan en **Likes** pero se ignoran (solo cuentan
-  likes entre ids que existen) y se limpian solos en la próxima baja.
-  **No** dejes la fila vacía: elimínala.
+**Borrar una cuenta falsa** (alguien registró un nombre que no es el suyo, o
+alguien olvidó su PIN). Los **matches no se guardan en ningún sitio**: se
+calculan al vuelo con dos likes recíprocos, así que al borrar los likes de
+esa cuenta desaparecen también sus matches (de los dos lados).
 
-Después la persona correcta ya puede registrarse con ese nombre.
+- **Recomendado (editor de Apps Script, 30 s):** en `Match.gs`, función
+  `borrarCuentaManual`, cambia `'Nom Cognom'` por el nombre (da igual
+  mayúsculas o acentos) → elige `borrarCuentaManual` en el desplegable →
+  **Ejecutar**. Borra la fila de **Participants** y **todos** sus likes, dados
+  y recibidos (y de paso los huérfanos). No hace falta publicar versión nueva.
+- **Solo desde la Sheet** (p. ej. desde el móvil):
+  1. **Participants**: busca el nombre (`Ctrl+F`), apunta su `id` (columna A,
+     tipo `p3f9a…`), clic derecho en el número de fila → **Eliminar fila**.
+     **No** la dejes vacía: elimínala. Desde aquí ya no puede entrar y sus
+     likes dejan de contar (solo cuentan likes entre ids que existen): sus
+     matches desaparecen en la siguiente consulta de los demás.
+  2. **Likes** (para dejarlo limpio): **Datos → Crear un filtro**; en la
+     columna `de_nom` filtra por su nombre → selecciona las filas visibles →
+     clic derecho → **Eliminar filas seleccionadas**. Repite con `a_nom`.
+     Quita el filtro. (Si no lo haces, esas filas se ignoran igualmente y se
+     borran solas en la próxima baja de cualquiera.)
+
+Después la persona correcta ya puede registrarse con ese nombre. Ojo: en el
+móvil de quien creó la cuenta falsa sigue la marca «Ja tens un compte en
+aquest mòbil» (solo le deja entrar, y la cuenta ya no existe). Si era un
+error de buena fe y necesita registrarse de nuevo desde ese móvil, que abra
+`match.html?reset` una vez.
 
 **Desbloquear un nombre antes de 15 min:** en **Participants**, pon
 `intents_fallits` y `bloquejat_fins` a `0` en su fila.
@@ -238,6 +256,10 @@ Al terminar, bórralos con `borrarCuentaManual` o dándolos de baja.
 | 14 | «Recorda'm» desmarcado, cerrar la pestaña y volver | Pide PIN otra vez. En localStorage nunca aparece el PIN |
 | 15 | C se da de baja (confirmación) | Fila de C y todos sus likes fuera de la Sheet; C desaparece de la lista de los demás |
 | 16 | `borrarCuentaManual` con el nombre de B | Igual que la baja |
+| 17 | A (que se registró en ese navegador) sale y pulsa «Apunta-m'hi» | No cambia de pestaña: «Ja tens un compte en aquest mòbil…» con su nombre puesto |
+| 18 | En ese navegador, `match.html?reset` y otra vez «Apunta-m'hi» | Deja registrarse (y `?reset` desaparece de la dirección) |
+| 19 | A recibe un like de B con la página abierta | «Likes rebuts» **no** cambia con la consulta periódica (F12 → Red: las de cada 45 s no llevan `recibidos`); al recargar, sube |
+| 20 | Una cuenta sin likes recibidos | «De moment, misteri absolut 😏», sin número |
 
 Recuerda devolver `REVELACION` a su valor y publicar versión nueva tras la prueba 12.
 

@@ -6,6 +6,11 @@
    (apps-script/Match.gs). Aquí solo se pinta lo que el servidor devuelve,
    que es únicamente: nombres de participantes, MIS likes y MIS matches.
 
+   Una cuenta por móvil: al registrarse se guarda {id, nombre} en
+   localStorage (fiesta2122:match-compte); con esa marca no se puede crear
+   otra cuenta, solo entrar. Se borra al darse de baja de esa cuenta o con
+   match.html?reset (o reto.html?reset). Es un freno, no seguridad.
+
    Likes recibidos: el servidor solo da el NÚMERO total, y solo cuando se
    pide ({recibidos: true}): en la primera consulta al entrar o recargar,
    nunca en la periódica.
@@ -47,6 +52,10 @@
   // Nunca más a menudo que cada 45 s (cuotas de Apps Script)
   var INTERVALO = Math.max(45, cfg.segundosConsulta || 45) * 1000;
   var CLAVE_SESION = 'fiesta2122:match-sesion';
+  // Marca "este móvil ya creó una cuenta": {id, nombre}. No es seguridad (se
+  // borra limpiando el navegador o en incógnito), solo un freno a las cuentas
+  // falsas. Se quita al darse de baja de ESA cuenta o con match.html?reset.
+  var CLAVE_CUENTA = 'fiesta2122:match-compte';
   var sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- Estado ---------- */
@@ -72,6 +81,15 @@
   var CADA_ESPERA = 60 * 1000;        // preguntar si ya pasó la hora y sigue cerrado
 
   function ahora() { return Date.now() + desfase; }
+
+  /* ---------- Modo prueba oculto: ?reset ---------- */
+  // Borra la marca de cuenta de este móvil (para poder registrar otra en
+  // pruebas). Se quita de la dirección sin recargar, conservando ?demo.
+  if (/[?&]reset\b/.test(location.search)) {
+    A.borrar(CLAVE_CUENTA);
+    var busqueda = location.search.replace(/[?&]reset\b(=[^&]*)?/, '').replace(/^&/, '?');
+    history.replaceState(null, '', location.pathname + busqueda + location.hash);
+  }
 
   /* ---------- Comunicación con el servidor ---------- */
 
@@ -121,8 +139,8 @@
     datos: 'El servidor no ha acceptat les dades. Si torna a passar, avisa l\'organització.',
     nombre: 'El nom ha de tenir entre 3 i 40 lletres (pot portar espais, accents, apòstrofs i guions).',
     pin: 'El PIN han de ser exactament 4 xifres.',
-    nombre_ocupado: 'Aquest nom ja està registrat. Si ja t\'hi havies apuntat, entra amb el teu PIN. ' +
-      'Si és el teu nom i no l\'has registrat tu, avisa els organitzadors.',
+    nombre_ocupado: 'Aquest nom ja està registrat. Si no has estat tu, avisa ara mateix els organitzadors.',
+    ya_tienes: 'Ja tens un compte en aquest mòbil. Entra amb el teu nom i el teu PIN.',
     credenciales: 'Nom o PIN incorrectes.',
     bloqueado: 'Massa intents incorrectes amb aquest nom.',
     sesion: 'La sessió s\'ha tancat (potser has entrat des d\'un altre dispositiu). Torna a entrar.',
@@ -175,6 +193,36 @@
     clearTimeout(temporizador);
   }
 
+  // Una cuenta por móvil. Almacen ya va con try/catch; JSON.parse también.
+  function leerCuenta() {
+    try {
+      var c = JSON.parse(A.leer(CLAVE_CUENTA));
+      return c && typeof c.id === 'string' ? c : null;
+    } catch (e) { return null; }
+  }
+
+  function marcarCuenta(r) {
+    A.guardar(CLAVE_CUENTA, JSON.stringify({ id: r.id, nombre: r.nombre }));
+  }
+
+  // Solo si la baja es de la cuenta que se creó aquí (si un amigo entra con
+  // la suya en este móvil y se da de baja, la marca sigue siendo tuya)
+  function olvidarCuenta(id) {
+    var c = leerCuenta();
+    if (c && c.id === id) A.borrar(CLAVE_CUENTA);
+  }
+
+  // Si este móvil ya tiene cuenta: no deja ir a "Apunta-m'hi", se queda en
+  // "Ja estic apuntat" con el nombre puesto y el aviso. Devuelve true si bloquea.
+  function bloquearRegistro() {
+    var c = leerCuenta();
+    if (!c) return false;
+    cambiarModo(false);
+    if (!inNombre.value && c.nombre) inNombre.value = c.nombre;
+    mostrar($('errorAcceso'), MENSAJES.ya_tienes);
+    return true;
+  }
+
   /* ---------- Vista: acceso (entrar / registrarse) ---------- */
 
   var tabEntrar = $('tabEntrar'), tabRegistro = $('tabRegistro');
@@ -194,12 +242,14 @@
     mostrar($('errorAcceso'), '');
   }
 
+  function irARegistro() { if (!bloquearRegistro()) cambiarModo(true); }
+
   tabEntrar.addEventListener('click', function () { cambiarModo(false); });
-  tabRegistro.addEventListener('click', function () { cambiarModo(true); });
+  tabRegistro.addEventListener('click', irARegistro);
   // Flechas ←/→ entre pestañas (patrón ARIA de tablist)
   $('vistaAcceso').querySelector('[role="tablist"]').addEventListener('keydown', function (e) {
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-    cambiarModo(!modoRegistro);
+    if (modoRegistro) cambiarModo(false); else irARegistro();
     (modoRegistro ? tabRegistro : tabEntrar).focus();
   });
 
@@ -217,6 +267,8 @@
     var pin = inPin.value;
     mostrar($('okAcceso'), '');
 
+    // Por si la marca apareció con el formulario ya en modo registro (otra pestaña)
+    if (modoRegistro && bloquearRegistro()) return;
     if (nombre.length < 3 || nombre.length > 40 || !RE_NOMBRE.test(nombre)) return mostrar($('errorAcceso'), MENSAJES.nombre);
     if (!/^\d{4}$/.test(pin)) return mostrar($('errorAcceso'), MENSAJES.pin);
     if (modoRegistro && pin !== inPin2.value) return mostrar($('errorAcceso'), 'Els dos PIN no coincideixen.');
@@ -238,6 +290,8 @@
           return;
         }
         inPin.value = inPin2.value = '';
+        // Se marca aunque no haya "Recorda'm": la marca es del móvil, no de la sesión
+        if (modoRegistro) marcarCuenta(r);
         guardarSesion(r);
         cargarEstado(true);
       });
@@ -468,12 +522,15 @@
 
   function darDeBaja() {
     var btn = $('btnBaja');
+    var id = sesion && sesion.id;
     btn.disabled = true;
     llamar('baja')
       .catch(comoRespuesta)
       .then(function (r) {
         btn.disabled = false;
         if (!r.ok && r.error !== 'sesion') return mostrar($('errorDentro'), textoError(r));
+        // Baja confirmada por el servidor: este móvil puede volver a registrarse
+        if (r.ok) olvidarCuenta(id);
         salirLocal('');
         mostrar($('okAcceso'), 'Compte esborrat. S\'han eliminat el teu nom i tots els teus likes.');
       });
@@ -714,8 +771,11 @@
     }
     cambiarModo(false);
     sesion = sesion || leerSesion();
-    if (sesion) cargarEstado(true);
-    else verVista('acceso');
+    if (sesion) return cargarEstado(true);
+    verVista('acceso');
+    // Si este móvil ya tiene cuenta, dejamos su nombre puesto para entrar
+    var c = leerCuenta();
+    if (c && c.nombre && !inNombre.value) inNombre.value = c.nombre;
   }
 
   (cfg.explicacion || []).forEach(function (t) { $('comoLista').appendChild(el('li', null, t)); });

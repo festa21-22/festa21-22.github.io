@@ -20,7 +20,8 @@
         {"dificultad":"medio","numero":3,"cambiado":true,"anterior":7}
       También se guarda ANTES de la animación (recargar no da otro intento).
    5. Modo prueba oculto: abrir reto.html?reset borra el reto guardado
-      (y con él el cambio usado, porque van en la misma clave).
+      (y con él el cambio usado, porque van en la misma clave) y la marca
+      "una cuenta por móvil" del Match.
    6. Bloqueo: hasta FIESTA.retosApertura la página es una "sorpresa" con
       cuenta atrás: no se puede elegir dificultad, ni ver retos, ni subir
       pruebas. Si la página está abierta a la hora, se desbloquea sola con
@@ -62,6 +63,8 @@
   if (/[?&]reset\b/.test(params)) {        // borra el reto guardado (y el cambio usado)
     A.borrar(CLAVE_RETO);
     A.borrar(CLAVE_REVELADO);
+    // Y la marca "una cuenta por móvil" del Match (match.js; también match.html?reset)
+    A.borrar('fiesta2122:match-compte');
   }
   if (/[?&]unlock\b/.test(params)) A.guardar(CLAVE_UNLOCK, '1');
   if (/[?&]lock\b/.test(params)) A.borrar(CLAVE_UNLOCK);

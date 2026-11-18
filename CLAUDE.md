@@ -94,7 +94,8 @@ Orden de scripts (todos con `defer`): `data.js` → `storage.js` → `comun.js` 
   **No debe existir forma de re-sortear desde la interfaz.** Única excepción,
   oculta y solo para pruebas: abrir `reto.html?reset` borra el reto guardado
   **y el cambio usado** (van en la misma clave) y quita `?reset` de la URL con
-  `history.replaceState`. Ni el orden de cada
+  `history.replaceState` (también borra la marca «una cuenta por móvil» del
+  Match). Ni el orden de cada
   lista ni las claves `facil/medio/dificil` se cambian una vez repartidos.
 - Todo acceso a localStorage pasa por `Almacen` (try/catch). Si no hay
   almacenamiento, la web sigue funcionando y avisa.
@@ -148,6 +149,15 @@ lista de pruebas: `apps-script/GUIA.md` (sección «Match de la festa»).
 - **Sesión:** token aleatorio que da el servidor; en la Sheet se guarda su
   SHA-256. En el móvil (`fiesta2122:match-sesion`) solo `{id, token, nombre}`,
   **nunca el PIN**. Entrar de nuevo genera token nuevo (cierra otras sesiones).
+- **Una cuenta por móvil** (solo cliente, es un freno y no seguridad): al
+  registrarse, `match.js` guarda `fiesta2122:match-compte = {id, nombre}`
+  (vía `Almacen`, aunque no se marque «Recorda'm»). Con la marca, «Apunta-m'hi»
+  no cambia de pestaña: queda en «Ja estic apuntat» con el nombre puesto y el
+  aviso «Ja tens un compte en aquest mòbil…». Se borra al darse de baja **de
+  esa misma cuenta** (si un amigo entra con la suya y se da de baja, la marca
+  sigue) y con `match.html?reset` o `reto.html?reset` (se quitan de la URL;
+  `?demo` se conserva). Nombre ya registrado → «Aquest nom ja està registrat.
+  Si no has estat tu, avisa ara mateix els organitzadors.»
 - **Fuerza bruta:** 5 PIN fallidos por nombre → bloqueado 15 min, incluso con
   el PIN correcto. Nombre inexistente y PIN mal dan el mismo error (`credenciales`).
 - **Nombres:** se comparan normalizados (minúsculas, sin acentos, espacios
@@ -159,6 +169,9 @@ lista de pruebas: `apps-script/GUIA.md` (sección «Match de la festa»).
   código no deja bajar) y **solo con la página visible** (Page Visibility API).
   Cada match anima una sola vez: el servidor marca `match_vist` al entregarlo.
 - **Baja:** borra la fila del participante y todos los likes dados y recibidos.
+  Los matches no se guardan: se calculan con likes recíprocos, así que
+  desaparecen con ellos. Borrado manual de cuentas falsas: `apps-script/GUIA.md`
+  → «Tareas de organizadores» (`borrarCuentaManual` o a mano en la Sheet).
 - La hoja Likes guarda también `de_nom` y `a_nom` (columnas E-F, solo para que
   los organizadores lean la Sheet; el código usa los ids de A-D por posición).
 - Los organizadores pueden ver la Sheet (son sus dueños). Se decidió no
@@ -203,7 +216,8 @@ lista de pruebas: `apps-script/GUIA.md` (sección «Match de la festa»).
   fotogramas: no se disparan `requestAnimationFrame` ni el evento `close` de
   `<dialog>` (los diálogos parecen no hacer nada). No es un fallo de la web.
 - Match sin backend: `http://localhost:8080/match.html?demo` (participantes falsos;
-  `&revelacion=2` simula revelación en 2 min; `&apertura=1` Sorpresa que se abre en 1 min). Con backend real: lista de pruebas en `apps-script/GUIA.md`.
+  `&revelacion=2` simula revelación en 2 min; `&apertura=1` Sorpresa que se abre en 1 min;
+  `&reset` quita la marca de cuenta para poder registrar otra). Con backend real: lista de pruebas en `apps-script/GUIA.md`.
 
 ## Git
 
