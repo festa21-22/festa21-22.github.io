@@ -265,6 +265,16 @@ window.FIESTA = {
     titulo: "Match de la festa",
     subtitulo: "Marca qui t'agrada. Si és mutu, és un match.",
 
+    // Likes recibidos: solo se ve el número total, nunca de quién. Se
+    // actualiza al entrar o recargar la página (no en directo).
+    recibidos: {
+      titulo: "Likes rebuts",
+      uno: "like",                              // detrás del número: "♥ 1 like"
+      varios: "likes",                          // "♥ 5 likes"
+      cero: "De moment, misteri absolut 😏",    // con 0 no se enseña el número
+      nota: "Ningú no sap de qui són. El número s'actualitza quan tornes a obrir la pàgina."
+    },
+
     segundosConsulta: 45,
     // Texto "Com funciona": un párrafo por línea
     explicacion: [
@@ -272,6 +282,7 @@ window.FIESTA = {
       "Marca les persones que t'agradin. Pots desmarcar-les quan vulguis.",
       "Si dues persones es marquen mútuament, és un match i totes dues ho veuran.",
       "Si marques algú i no et marca, ningú no ho sabrà mai: els likes no recíprocs no es mostren a ningú.",
+      "Veuràs quantes persones t'han marcat en total, però mai qui.",
       "Et pots donar de baixa quan vulguis: s'esborra el teu compte i tots els teus likes."
     ]
   }

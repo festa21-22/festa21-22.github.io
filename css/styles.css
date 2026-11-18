@@ -730,6 +730,15 @@ svg { display: block; }
   text-decoration: underline; text-underline-offset: 3px;
 }
 
+/* Likes recibidos (solo el número) */
+.recibidos { border-color: rgba(255, 198, 92, .3); }
+.recibidos__valor { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin: 2px 0 0; }
+.recibidos__cor { color: var(--cor); font-size: 1.5rem; text-shadow: 0 0 10px rgba(255, 143, 177, .7); }
+.recibidos__num { font: 800 2.2rem/1 var(--f-titulo); color: var(--luz-blanca); }
+.recibidos__unidad { color: var(--texto-2); font-weight: 700; }
+.recibidos__cero { font-size: 1.1rem; font-weight: 700; color: var(--luz-blanca); }
+.recibidos__nota { color: var(--texto-3); font-size: .85rem; }
+
 .mis-matches { border-color: rgba(255, 143, 177, .35); }
 .mis-matches__nota { color: var(--texto-2); font-size: .92rem; }
 .mis-matches__lista { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 8px; }

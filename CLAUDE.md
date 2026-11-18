@@ -132,9 +132,14 @@ lista de pruebas: `apps-script/GUIA.md` (sección «Match de la festa»).
   guardar likes, calcular matches, hora de revelación, bloqueo, validación.
   El cliente nunca calcula matches ni recibe datos ajenos.
 - **El servidor solo devuelve** nombres de participantes (`{id, nombre}`), los
-  likes **propios** y los matches **propios**. **Nunca** quién ha dado like a
-  alguien si no es recíproco, ni hashes, ni datos de otras cuentas. Que nada
-  ajeno sea visible con F12.
+  likes **propios**, los matches **propios** y el **número** de likes recibidos
+  propio. **Nunca** quién ha dado like a alguien si no es recíproco, ni hashes,
+  ni datos (ni números) de otras cuentas. Que nada ajeno sea visible con F12.
+- **Likes recibidos:** solo el total, calculado en `Match.gs`. `estado` lo
+  incluye (`recibidos`) **solo si la petición lleva `recibidos: true`**, y
+  `match.js` solo lo pide en la primera consulta (al entrar o recargar), nunca
+  en la periódica: si subiera en directo, por el momento se podría deducir
+  quién fue. Con 0 no se muestra el número sino `match.recibidos.cero`.
 - Antes de `REVELACION`, un like recíproco responde **igual** que uno no
   recíproco (`match: null`) y `estado` devuelve `matches: []`.
 - **PIN:** 4 cifras; en la Sheet solo `SHA-256(pimienta + ":" + salt + ":" + PIN)`.
@@ -161,7 +166,8 @@ lista de pruebas: `apps-script/GUIA.md` (sección «Match de la festa»).
 - **Contrato** (POST text/plain, mismo `doPost` y `clave` que la subida; con
   `accion` va al Match): `registro`/`entrar` `{nombre, pin}` → `{ok, id, token, nombre}`;
   `estado`/`like`/`quitarLike`/`salir`/`baja` con `{id, token}` (+ `a` = id destino).
-  `estado` → `{yo, participantes, likes, matches, nuevos, revelado, revelacion, maxLikes}`;
+  `estado` (+ `recibidos: true` opcional) → `{yo, participantes, likes, matches, nuevos, revelado, revelacion, maxLikes}`
+  (+ `recibidos` = número, solo si se pidió);
   `like` → `{ok, match: {id, nombre} | null}`. Errores: `nombre`, `pin`,
   `nombre_ocupado`, `credenciales` (+`quedan`), `bloqueado` (+`minutos`),
   `sesion`, `no_existe`, `limite`, `lleno`, `ocupado`, `accion`, `datos`, `clave`,

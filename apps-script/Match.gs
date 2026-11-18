@@ -13,8 +13,9 @@
 
    Reglas de privacidad (todas se cumplen AQUÍ, no en el navegador):
    - El PIN nunca se guarda: solo SHA-256(pimienta + salt + PIN).
-   - La web solo recibe: nombres de participantes, MIS likes y MIS matches.
-     Nunca quién me ha dado like si no es recíproco.
+   - La web solo recibe: nombres de participantes, MIS likes, MIS matches y
+     el NÚMERO de likes que he recibido (solo si lo pide: al entrar o
+     recargar). Nunca quién me ha dado like si no es recíproco.
    - Antes de la hora de revelación, un like recíproco responde EXACTAMENTE
      igual que uno no recíproco (no se puede deducir nada).
    - 5 PIN fallidos para un nombre → bloqueado 15 minutos.
@@ -165,7 +166,7 @@ function conSesion(bd, p, accion) {
   return accion(bd, yo, p);
 }
 
-function estado(bd, yo) {
+function estado(bd, yo, p) {
   const revelado = esRevelado();
   const porId = indicePorId(bd);
 
@@ -194,7 +195,7 @@ function estado(bd, yo) {
     });
   }
 
-  return {
+  const respuesta = {
     ok: true,
     yo: { id: yo.id, nombre: yo.nombre },
     participantes: participantes,
@@ -205,6 +206,11 @@ function estado(bd, yo) {
     revelacion: CONFIG_MATCH.REVELACION || null,
     maxLikes: CONFIG_MATCH.MAX_LIKES,
   };
+  // Likes recibidos: SOLO el número total, nunca de quién. Solo se manda si
+  // la web lo pide (al entrar o recargar, no en la consulta periódica): si
+  // subiera en directo, por el momento del cambio se podría adivinar quién fue.
+  if (p && p.recibidos === true) respuesta.recibidos = Object.keys(meQuieren).length;
+  return respuesta;
 }
 
 function darLike(bd, yo, p) {

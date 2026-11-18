@@ -6,6 +6,10 @@
    (apps-script/Match.gs). Aquí solo se pinta lo que el servidor devuelve,
    que es únicamente: nombres de participantes, MIS likes y MIS matches.
 
+   Likes recibidos: el servidor solo da el NÚMERO total, y solo cuando se
+   pide ({recibidos: true}): en la primera consulta al entrar o recargar,
+   nunca en la periódica.
+
    Sesión: al entrar, el servidor da un TOKEN aleatorio (no el PIN). Si se
    marca "Recorda'm", se guarda en localStorage {id, token, nombre}; si no,
    solo en memoria (se pierde al cerrar la pestaña). El PIN no se guarda nunca.
@@ -262,7 +266,9 @@
     if (!sesion || consultando) return;
     consultando = true;
     ultimaConsulta = Date.now();
-    llamar('estado')
+    // El número de likes recibidos solo se pide al entrar o recargar, nunca
+    // en la consulta periódica (que no se pueda deducir quién por cuándo sube)
+    llamar('estado', primeraVez ? { recibidos: true } : null)
       .catch(comoRespuesta)
       .then(function (r) {
         consultando = false;
@@ -294,6 +300,8 @@
     datos.revelacion = r.revelacion || null;
     datos.maxLikes = r.maxLikes || 0;
     if (r.yo) sesion.nombre = r.yo.nombre;
+    // Solo viene en la primera consulta; en las demás se deja el que había
+    if (typeof r.recibidos === 'number') pintarRecibidos(r.recibidos);
     pintarDentro();
     (r.nuevos || []).forEach(encolarMatch);
   }
@@ -302,6 +310,23 @@
     $('miNombre').textContent = sesion.nombre;
     pintarMatches();
     pintarPersonas();
+  }
+
+  // Likes recibidos en total (el servidor solo da el número, nunca de quién)
+  function pintarRecibidos(n) {
+    var t = cfg.recibidos || {};
+    var valor = $('recibidosValor');
+    valor.replaceChildren();
+    if (n > 0) {
+      valor.appendChild(el('span', 'recibidos__cor', '♥'));
+      valor.appendChild(el('span', 'recibidos__num', String(n)));
+      valor.appendChild(el('span', 'recibidos__unidad', n === 1 ? (t.uno || 'like') : (t.varios || 'likes')));
+    } else {
+      valor.appendChild(el('span', 'recibidos__cero', t.cero || ''));
+    }
+    if (t.titulo) $('recibidosTitulo').textContent = t.titulo;
+    $('recibidosNota').textContent = t.nota || '';
+    $('recibidos').hidden = false;
   }
 
   function pintarMatches() {
@@ -414,6 +439,7 @@
   function salirLocal(mensaje) {
     olvidarSesion();
     datos.participantes = [];
+    $('recibidos').hidden = true;   // que no se vea el de otra cuenta al volver a entrar
     cambiarModo(false);
     verVista('acceso');
     if (mensaje) mostrar($('errorAcceso'), mensaje);

@@ -97,7 +97,7 @@
       });
     },
 
-    estado: function (bd, yo) {
+    estado: function (bd, yo, p) {
       var activos = likesActivos(bd);
       var mios = activos.filter(function (l) { return l.de === yo.id; });
       var porId = {};
@@ -111,7 +111,7 @@
           if (l.vist !== 'si') { l.vist = 'si'; nuevos.push(m); }
         });
       }
-      return {
+      var r = {
         ok: true, yo: { id: yo.id, nombre: yo.nombre },
         participantes: bd.part.filter(function (x) { return x.id !== yo.id; })
           .map(function (x) { return { id: x.id, nombre: x.nombre }; })
@@ -120,6 +120,11 @@
         matches: matches, nuevos: nuevos,
         revelado: revelado(bd), revelacion: bd.revelacion, maxLikes: 0
       };
+      // Igual que Match.gs: solo el número, y solo si se pide
+      if (p && p.recibidos === true) {
+        r.recibidos = activos.filter(function (l) { return l.a === yo.id && porId[l.de]; }).length;
+      }
+      return r;
     },
 
     like: function (bd, yo, p) {
