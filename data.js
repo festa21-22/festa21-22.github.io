@@ -173,7 +173,7 @@ window.FIESTA = {
       "Canta la cançó «Oh me vengo» de Faraón Love Shady",                              // 08
       "Fes una foto a algú i edita-la amb IA",                                          // 09
       "Recrea una escena d'una pel·lícula amb més persones",                            // 10
-      "Fes-te una foto amb algú verge",                                                 // 11
+      "Grava el TikTok de «Toc toc, on frappe à ma porte»",                             // 11
       "Fes un vídeo imitant un animal",                                                 // 12
       "Fes un vídeo imitant un famós",                                                  // 13
       "Fes un vídeo imitant algú de la festa",                                          // 14
@@ -194,7 +194,8 @@ window.FIESTA = {
       "Aconsegueix que dues persones facin una petita coreografia de ball amb tu",      // 07
       "Organitza un casament entre dues persones (s'han de fer un petó)",               // 08
       "Fes-te una foto amb 4 persones que no es coneguin entre elles",                  // 09
-      "Troba l'aneguet de goma amagat a la casa"                                        // 10
+      "Troba l'aneguet de goma amagat a la casa",                                       // 10
+      "Fes un freestyle"                                                                // 11
     ],
 
     // 🔴 DIFÍCIL

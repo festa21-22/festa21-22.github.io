@@ -50,7 +50,7 @@ Orden de scripts (todos con `defer`): `data.js` → `storage.js` → `comun.js` 
 ## Lógica que no hay que romper
 
 - **Reto con 3 dificultades:** `FIESTA.retos = {facil, medio, dificil}`, listas
-  de **tamaño libre** (ahora 18 / 10 / 13; nada de números fijos: todo usa
+  de **tamaño libre** (ahora 18 / 11 / 13; nada de números fijos: todo usa
   `lista(dif).length`; nombres visibles en `FIESTA.nombresDificultad`). Primera visita:
   3 botones → confirmación (`<dialog>`, fallback `confirm()`) → ruleta 1..N de
   esa lista → número + texto + etiqueta de color (verde/amarillo/rojo).
